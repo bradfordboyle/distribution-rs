@@ -2,6 +2,7 @@ use std::cmp;
 use std::io;
 
 use pairlist::Pair;
+use std::io::Write;
 
 pub struct HistogramWriter {
     height: usize,
@@ -10,36 +11,39 @@ pub struct HistogramWriter {
 
 impl HistogramWriter {
     pub fn new() -> HistogramWriter {
-        HistogramWriter { width: 80, height: 15}
+        HistogramWriter { width: 120, height: 35}
     }
 
     pub fn write_histogram<T: io::Write>(&self, writer: &mut T, pairlist: &Vec<Pair>) {
-        let max_key_width = 3usize;
-        let max_token_width = 5usize;
+        let output_limit = cmp::min(self.height, pairlist.len());
+        let data: Vec<_> = pairlist.iter().take(output_limit).collect();
         let max_pct_width = 8usize;
         let regular_color = "\u{001b}[0m";
-        let key_color = "\u{001b}[0m";
-        let ct_color = "\u{001b}[32m";
+        let key_color = "\u{001b}[32m";
+        let ct_color = "\u{001b}[34m";
         let pct_color = "\u{001b}[35m";
-        let graph_color = "\u{001b}[34m";
+        let graph_color = "\u{001b}[37m";
 
 
         let total_value = pairlist.iter().fold(0, |sum, p| sum + p.value);
-        let max_value = pairlist.iter().fold(0, |max, p| cmp::max(max, p.value));
+        let max_value = data.iter().fold(0, |max, p| cmp::max(max, p.value));
 
-        let bar_width = self.width - (max_key_width+1) - (max_token_width+1) - (max_pct_width+1);
+        let max_key_width = data.iter().fold(0, |max, p| cmp::max(max, p.key.len()));
+        let max_token_width = format!("{}", max_value).len();
 
-        write!(writer, "{:>width$}", "Key", width = max_key_width);
-        write!(writer, "|{:>width$}", "Ct", width = max_token_width);
-        write!(writer, " {:>width$}", "(Pct)", width = max_pct_width);
-        write!(writer, " Histogram\n");
-        write!(writer, "{}|{}\n", "-".repeat(max_key_width), "-".repeat(self.width - 4));
+        let bar_width = self.width - (max_key_width+1) - (max_token_width+1) - (max_pct_width+1) - 1;
 
-        let output_limit = 15usize;
-        for p in pairlist.iter().take(output_limit) {
+        let mut stderr = io::stderr();
+        write!(stderr, "{:>width$}", "Key", width = max_key_width);
+        write!(stderr, "|{:>width$}", "Ct", width = max_token_width);
+        write!(stderr, " {:>width$}", "(Pct)", width = max_pct_width);
+        write!(stderr, " Histogram\n");
+        write!(stderr, "{}|{}\n", "-".repeat(max_key_width), "-".repeat(self.width - 4));
+
+
+        for (i, p) in data.iter().enumerate() {
             let pct = p.value as f64 / total_value as f64 * 100.0f64;
 
-            write!(writer, "{}", key_color);
             write!(writer, "{:>width$}", p.key, width = max_key_width);
             write!(writer, "{}", regular_color);
             write!(writer, "|");
@@ -54,8 +58,13 @@ impl HistogramWriter {
             write!(writer, "{:>width$}", format!("({:2.2}%)", pct), width = max_pct_width);
 
             write!(writer, "{}", graph_color);
-            write!(writer, " {}\n", self.histogram_bar(max_value, bar_width, p.value));
-            write!(writer, "{}", regular_color);
+            write!(writer, " {}", self.histogram_bar(max_value, bar_width, p.value));
+
+            if i == output_limit - 1 {
+                write!(writer, "{}", regular_color);
+            } else {
+                write!(writer, "{}\n", key_color);
+            }
         }
     }
 
@@ -64,12 +73,15 @@ impl HistogramWriter {
         let int_width = width.floor() as usize;
         let rem = width - int_width as f64;
         let graph_char = vec!["▏", "▎", "▍", "▌", "▋", "▊", "▉", "█"];
-        let char_width = 0.125f64;
-        let zero_char = "█";
+        let char_width = 1.0f64;
+        let zero_char = "•";
+        let one_char = "•";
 
         let mut bar = zero_char.repeat(int_width);
 
-        if rem > char_width {
+        if char_width == 1.0f64 {
+            bar.push_str(one_char);
+        } else if char_width < 1.0f64 && rem > char_width {
             let which = (rem / char_width).floor() as usize;
             bar.push_str(graph_char[which])
         }

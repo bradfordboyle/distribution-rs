@@ -7,11 +7,12 @@ mod histogram;
 use std::io;
 
 use histogram::HistogramWriter;
-use tokenizer::LineTokenizer;
+use tokenizer::PreTalliedTokenizer;
 use tokenizer::Tokenizer;
 
 fn main() {
-    let t = LineTokenizer::new(r".");
+    // let t = LineTokenizer::new(r".");
+    let t = PreTalliedTokenizer::value_key_tokenizer();
     let stdin = io::stdin();
     let mut p = t.tokenize(stdin.lock());
     p.sort_by(|a, b| b.cmp(a));
