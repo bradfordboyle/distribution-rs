@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -o xtrace
+
 # make sure env is setup proper
 distribution="../target/debug/distribution"
 if [ ! -x $distribution ] ; then
@@ -13,8 +15,8 @@ echo ""
 printf "Running test: 1. "
 cat stdin.01.txt | $distribution --rcfile=../distributionrc --graph --height=35 --width=120 --char=dt --color --verbose > stdout.01.actual.txt 2> stderr.01.actual.txt
 
-# printf "2. "
-# cat stdin.02.txt | awk '{print $4" "$5}' | $distribution --rcfile=../distributionrc -s=med --width=110 --tokenize=word --match=word -v -c > stdout.02.actual.txt 2> stderr.02.actual.txt
+printf "2. "
+cat stdin.02.txt | awk '{print $4" "$5}' | $distribution --rcfile=../distributionrc -s=med --width=110 --tokenize=word --match=word -v -c > stdout.02.actual.txt 2> stderr.02.actual.txt
 
 # printf "3. "
 # grep modem stdin.02.txt | awk '{print $1}' | $distribution --rcfile=../distributionrc --width=110 -h=15 -c='|' -v -c 2> stderr.03.actual.txt | sort > stdout.03.actual.txt

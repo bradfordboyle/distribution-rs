@@ -2,16 +2,20 @@ use std::cmp;
 use std::io;
 
 use pairlist::Pair;
+use settings::Settings;
 use std::io::Write;
 
 pub struct HistogramWriter {
+    s: Settings,
     height: usize,
     width: usize,
 }
 
 impl HistogramWriter {
-    pub fn new() -> HistogramWriter {
-        HistogramWriter { width: 120, height: 35}
+    pub fn new(s: Settings) -> HistogramWriter {
+        let w = s.width();
+        let h = s.height();
+        HistogramWriter { s: s, width: w, height: h}
     }
 
     pub fn write_histogram<T: io::Write>(&self, writer: &mut T, pairlist: &Vec<Pair>) {
