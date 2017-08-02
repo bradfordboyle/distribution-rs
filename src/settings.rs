@@ -3,7 +3,7 @@ use std::io::BufRead;
 use std::env;
 use std::fs::File;
 
-#[derive(Default)]
+#[derive(Debug,Default)]
 pub struct Settings {
     program_name: String,
     total_millis: u32,
@@ -36,7 +36,7 @@ pub struct Settings {
     max_keys: u32,
     unicode_mode: bool,
     char_width: f32,
-    graph_chars: Vec<String>,
+    graph_chars: Vec<char>,
     partial_blocks: Vec<String>,
     partial_lines: Vec<String>
 }
@@ -51,8 +51,37 @@ impl Settings {
         self.height
     }
 
+    pub fn graph_values(&self) -> &str {
+        self.graph_values.as_str()
+    }
+
+    pub fn tokenize(&self) -> &str {
+        self.tokenize.as_str()
+    }
+
+    pub fn match_regexp(&self) -> &str {
+        self.match_regexp.as_str()
+    }
+
+    pub fn char_width(&self) -> f32 {
+        self.char_width
+    }
+
+    pub fn graph_chars(&self) -> &[char] {
+        &self.graph_chars
+    }
+
+    pub fn histogram_char(&self) -> &str {
+        self.histogram_char.as_str()
+    }
+
+    pub fn unicode_mode(&self) -> bool {
+        self.unicode_mode
+    }
+
     pub fn new(args: env::Args) -> Settings {
         let mut s: Settings = Default::default();
+        s.char_width = 1.0;
 
         let mut opts: Vec<String> = args.collect();
         let rcfile = if opts.len() > 1 && opts[1].starts_with("--rcfile") {
@@ -104,8 +133,20 @@ impl Settings {
                     s.height_arg = v[1].parse::<usize>().unwrap();
                 } else if v[0] == "-c" || v[0] == "--char" {
                     s.histogram_char = String::from(v[1]);
+                } else if v[0] == "-s" || v[0] == "--size" {
+                    s.size = String::from(v[1])
+                } else if v[0] == "-t" || v[0] == "--tokenize" {
+                    s.tokenize = String::from(v[1])
+                } else if v[0] == "-m" || v[0] == "--match" {
+                    s.match_regexp = String::from(v[1])
                 }
             }
+        }
+
+        // first, size, which might be further overridden by width/height later
+        if s.size == "medium" || s.size == "med" || s.size == "m" {
+            s.width = 100;
+            s.height = 20;
         }
 
         // override variables if they were explicitly given
@@ -117,7 +158,17 @@ impl Settings {
             s.height = s.height_arg;
         }
 
-        println!("rcfile: {:?}", s.width);
+        if s.histogram_char == "dt" {
+            s.unicode_mode = true;
+            s.histogram_char = "•".to_string();
+        }
+
+        if s.histogram_char == "pb" {
+            s.char_width = 0.125;
+            s.graph_chars = vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'];
+        }
+
+        // println!("rcfile: {:?}", s);
         s
     }
 }

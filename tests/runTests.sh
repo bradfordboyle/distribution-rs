@@ -42,7 +42,7 @@ echo "done."
 err=0
 printf "Comparing results: "
 # for i in 01 02 03 04 05 06 07 ; do
-for i in 01 ; do
+for i in 01 02 ; do
 	printf "$i. "
 	diff -w stdout.$i.expected.txt stdout.$i.actual.txt
 	if [ $? -ne 0 ]; then

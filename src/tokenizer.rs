@@ -69,6 +69,55 @@ impl Tokenizer for LineTokenizer {
     }
 }
 
+pub struct RegexTokenizer {
+    splitter: Regex,
+    matcher: Regex
+}
+
+impl RegexTokenizer {
+    pub fn new(splitter: &str, matcher: &str) -> RegexTokenizer {
+        let splitter_re = match splitter {
+            "white" => Regex::new(r"\s+").unwrap(),
+            "word" => Regex::new(r"\W").unwrap(),
+            _ => Regex::new(splitter).unwrap()
+        };
+
+        let matcher_re = match matcher {
+            "word" => Regex::new(r"^[A-Z,a-z]+$").unwrap(),
+            "num" => Regex::new(r"^\d+$").unwrap(),
+            _ => Regex::new(splitter).unwrap()
+        };
+
+        RegexTokenizer {
+            splitter: splitter_re,
+            matcher: matcher_re
+        }
+    }
+}
+
+impl Tokenizer for RegexTokenizer {
+    fn tokenize<T: io::BufRead>(&self, reader: T) -> Vec<Pair> {
+        let mut counts: HashMap<String, u64> = HashMap::new();
+
+        for l in reader.lines() {
+            let line = l.unwrap();
+            for token in self.splitter.split(line.trim_right()) {
+                if self.matcher.is_match(token) {
+                    let value = counts.entry(String::from(token)).or_insert(0);
+                    *value += 1
+                }
+            }
+        }
+
+        let mut vec = Vec::new();
+        for (key, &value) in &counts {
+            vec.push(Pair::new(value, key))
+        }
+        vec
+    }
+
+}
+
 #[cfg(test)]
 mod test {
     use std::io;

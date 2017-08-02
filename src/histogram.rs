@@ -73,21 +73,32 @@ impl HistogramWriter {
     }
 
     fn histogram_bar(&self, max_value: u64, bar_width: usize, bar_value: u64) -> String {
+        let mut zero_char: char;
+        let mut one_char: char;
+        if self.s.char_width() < 1f32 {
+            zero_char = self.s.graph_chars().last().expect("graph_chars is empty").clone();
+            one_char = '\0'
+        } else if self.s.histogram_char().len() > 1 && self.s.unicode_mode() == false {
+            zero_char = self.s.histogram_char().chars().nth(0).unwrap().clone();
+            one_char = self.s.histogram_char().chars().nth(1).unwrap().clone();
+        } else {
+            zero_char = self.s.histogram_char().chars().nth(0).unwrap().clone();
+            one_char = self.s.histogram_char().chars().nth(0).unwrap().clone();
+        }
+
         let width = (bar_value as f64) / (max_value as f64) * (bar_width as f64);
         let int_width = width.floor() as usize;
         let rem = width - int_width as f64;
-        let graph_char = vec!["▏", "▎", "▍", "▌", "▋", "▊", "▉", "█"];
+        let graph_char = vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'];
         let char_width = 1.0f64;
-        let zero_char = "•";
-        let one_char = "•";
 
-        let mut bar = zero_char.repeat(int_width);
+        let mut bar = zero_char.to_string().repeat(int_width);
 
         if char_width == 1.0f64 {
-            bar.push_str(one_char);
+            bar.push(one_char.clone());
         } else if char_width < 1.0f64 && rem > char_width {
             let which = (rem / char_width).floor() as usize;
-            bar.push_str(graph_char[which])
+            bar.push(graph_char[which])
         }
 
         bar
