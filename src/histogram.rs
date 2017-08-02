@@ -67,17 +67,18 @@ impl HistogramWriter {
     }
 
     fn histogram_bar(&self, max_value: u64, bar_width: usize, bar_value: u64) -> String {
-        let mut zero_char: char;
-        let mut one_char: char;
+        let zero_char: char;
+        let one_char: char;
+        let histogram_char = self.s.histogram_char();
         if self.s.char_width() < 1f32 {
             zero_char = self.s.graph_chars().last().expect("graph_chars is empty").clone();
             one_char = '\0'
-        } else if self.s.histogram_char().len() > 1 && self.s.unicode_mode() == false {
-            zero_char = self.s.histogram_char().chars().nth(0).unwrap().clone();
-            one_char = self.s.histogram_char().chars().nth(1).unwrap().clone();
+        } else if histogram_char.len() > 1 && self.s.unicode_mode() == false {
+            zero_char = histogram_char.chars().nth(0).unwrap().clone();
+            one_char = histogram_char.chars().nth(1).unwrap().clone();
         } else {
-            zero_char = self.s.histogram_char().chars().nth(0).unwrap().clone();
-            one_char = self.s.histogram_char().chars().nth(0).unwrap().clone();
+            zero_char = histogram_char.chars().nth(0).expect("histogram_char is empty").clone();
+            one_char = zero_char;
         }
 
         let width = (bar_value as f64) / (max_value as f64) * (bar_width as f64);

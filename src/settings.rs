@@ -171,7 +171,10 @@ impl Settings {
         }
 
         // first, size, which might be further overridden by width/height later
-        if s.size == "medium" || s.size == "med" || s.size == "m" {
+        if s.size == "small" || s.size == "sm" || s.size == "s" {
+            s.width = 60;
+            s.height = 10;
+        } else if s.size == "medium" || s.size == "med" || s.size == "m" {
             s.width = 100;
             s.height = 20;
         }
@@ -203,6 +206,11 @@ impl Settings {
         if s.histogram_char == "pb" {
             s.char_width = 0.125;
             s.graph_chars = vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'];
+        }
+
+        // detect whether the user has passed a multibyte unicode character directly as the histogram char
+        if s.histogram_char.as_bytes()[0] > 128 {
+            s.unicode_mode = true
         }
 
         // println!("rcfile: {:?}", s);
