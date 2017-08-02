@@ -18,11 +18,11 @@ cat stdin.01.txt | $distribution --rcfile=../distributionrc --graph --height=35 
 printf "2. "
 cat stdin.02.txt | awk '{print $4" "$5}' | $distribution --rcfile=../distributionrc -s=med --width=110 --tokenize=word --match=word -v -c > stdout.02.actual.txt 2> stderr.02.actual.txt
 
-# printf "3. "
-# grep modem stdin.02.txt | awk '{print $1}' | $distribution --rcfile=../distributionrc --width=110 -h=15 -c='|' -v -c 2> stderr.03.actual.txt | sort > stdout.03.actual.txt
+printf "3. "
+grep modem stdin.02.txt | awk '{print $1}' | $distribution --rcfile=../distributionrc --width=110 -h=15 -c='|' -v -c 2> stderr.03.actual.txt | sort > stdout.03.actual.txt
 
-# printf "4. "
-# cat stdin.03.txt | $distribution --rcfile=../distributionrc --size=large --height=8 --width=60 -t=/ --palette=0,31,33,35,37 -c='()' > stdout.04.actual.txt 2> stderr.04.actual.txt
+printf "4. "
+cat stdin.03.txt | $distribution --rcfile=../distributionrc --size=large --height=8 --width=60 -t=/ --palette=0,31,33,35,37 -c='()' > stdout.04.actual.txt 2> stderr.04.actual.txt
 
 # printf "5. "
 # cat stdin.03.txt | $distribution --rcfile=../distributionrc -c=pc -w=48 --tokenize=word --match=num --size=large --verbose 2> stderr.05.actual.txt | sort -n > stdout.05.actual.txt
@@ -42,7 +42,7 @@ echo "done."
 err=0
 printf "Comparing results: "
 # for i in 01 02 03 04 05 06 07 ; do
-for i in 01 02 ; do
+for i in 01 02 03 04 ; do
 	printf "$i. "
 	diff -w stdout.$i.expected.txt stdout.$i.actual.txt
 	if [ $? -ne 0 ]; then

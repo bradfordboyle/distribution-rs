@@ -28,7 +28,6 @@ fn main() {
     };
 
     p.sort_by(|a, b| b.cmp(a));
-    // println!("{:?}", p);
     let h = HistogramWriter::new(s);
     let stdout = io::stdout();
     let mut handle = stdout.lock();

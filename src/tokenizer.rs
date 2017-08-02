@@ -85,7 +85,7 @@ impl RegexTokenizer {
         let matcher_re = match matcher {
             "word" => Regex::new(r"^[A-Z,a-z]+$").unwrap(),
             "num" => Regex::new(r"^\d+$").unwrap(),
-            _ => Regex::new(splitter).unwrap()
+            _ => Regex::new(matcher).unwrap()
         };
 
         RegexTokenizer {
@@ -121,9 +121,7 @@ impl Tokenizer for RegexTokenizer {
 #[cfg(test)]
 mod test {
     use std::io;
-    use tokenizer::PreTalliedTokenizer;
-    use tokenizer::LineTokenizer;
-    use tokenizer::Tokenizer;
+    use tokenizer::{LineTokenizer,RegexTokenizer,PreTalliedTokenizer,Tokenizer};
     use pairlist::Pair;
 
     #[test]
@@ -201,6 +199,21 @@ mod test {
             Pair::new(1, "2 ab"),
             Pair::new(1, "1 ba"),
             Pair::new(1, "1 aa")
+        ]);
+    }
+
+    #[test]
+    fn regex_tokenizer() {
+        let t = RegexTokenizer::new(r"/", r".+");
+        let c = io::Cursor::new("/var/log/apparmor\n/var/log/dmesg.1.gz");
+        let mut actual = t.tokenize(c);
+
+        actual.sort_by(|a, b| b.cmp(&a));
+        assert_eq!(actual, vec![
+            Pair::new(2, "var"),
+            Pair::new(2, "log"),
+            Pair::new(1, "dmesg.1.gz"),
+            Pair::new(1, "apparmor")
         ]);
     }
 }

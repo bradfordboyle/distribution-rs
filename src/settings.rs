@@ -79,9 +79,32 @@ impl Settings {
         self.unicode_mode
     }
 
+    pub fn regular_colour(&self) -> &str {
+        self.regular_colour.as_str()
+    }
+
+    pub fn key_colour(&self) -> &str {
+        self.key_colour.as_str()
+    }
+
+    pub fn ct_colour(&self) -> &str {
+        self.ct_colour.as_str()
+    }
+
+    pub fn pct_colour(&self) -> &str {
+        self.pct_colour.as_str()
+    }
+
+    pub fn graph_colour(&self) -> &str {
+        self.graph_colour.as_str()
+    }
+
     pub fn new(args: env::Args) -> Settings {
         let mut s: Settings = Default::default();
+
+        // non-zero defaults
         s.char_width = 1.0;
+        s.match_regexp = String::from(r".");
 
         let mut opts: Vec<String> = args.collect();
         let rcfile = if opts.len() > 1 && opts[1].starts_with("--rcfile") {
@@ -133,6 +156,9 @@ impl Settings {
                     s.height_arg = v[1].parse::<usize>().unwrap();
                 } else if v[0] == "-c" || v[0] == "--char" {
                     s.histogram_char = String::from(v[1]);
+                } else if v[0] == "-p" || v[0] == "--palette" {
+                    s.colour_palette = String::from(v[1]);
+                    s.colourised_output = true;
                 } else if v[0] == "-s" || v[0] == "--size" {
                     s.size = String::from(v[1])
                 } else if v[0] == "-t" || v[0] == "--tokenize" {
@@ -156,6 +182,16 @@ impl Settings {
 
         if s.height_arg != 0 {
             s.height = s.height_arg;
+        }
+
+        // colour palette
+        if s.colourised_output {
+            let cl: Vec<&str> = s.colour_palette.splitn(5, ",").collect();
+            s.regular_colour = format!("\u{001b}[{}m", cl[0]);
+            s.key_colour = format!("\u{001b}[{}m", cl[1]);
+            s.ct_colour = format!("\u{001b}[{}m", cl[2]);
+            s.pct_colour = format!("\u{001b}[{}m", cl[3]);
+            s.graph_colour = format!("\u{001b}[{}m", cl[4]);
         }
 
         if s.histogram_char == "dt" {

@@ -22,12 +22,6 @@ impl HistogramWriter {
         let output_limit = cmp::min(self.height, pairlist.len());
         let data: Vec<_> = pairlist.iter().take(output_limit).collect();
         let max_pct_width = 8usize;
-        let regular_color = "\u{001b}[0m";
-        let key_color = "\u{001b}[32m";
-        let ct_color = "\u{001b}[34m";
-        let pct_color = "\u{001b}[35m";
-        let graph_color = "\u{001b}[37m";
-
 
         let total_value = pairlist.iter().fold(0, |sum, p| sum + p.value);
         let max_value = data.iter().fold(0, |max, p| cmp::max(max, p.value));
@@ -49,25 +43,25 @@ impl HistogramWriter {
             let pct = p.value as f64 / total_value as f64 * 100.0f64;
 
             write!(writer, "{:>width$}", p.key, width = max_key_width);
-            write!(writer, "{}", regular_color);
+            write!(writer, "{}", self.s.regular_colour());
             write!(writer, "|");
-            write!(writer, "{}", ct_color);
+            write!(writer, "{}", self.s.ct_colour());
             write!(writer, "{:>width$}", p.value, width = max_token_width);
             write!(writer, " ");
 
             // A good way to ensure padding is applied is to format your input,
             // then use this resulting string to pad your output.
             // https://doc.rust-lang.org/std/fmt/
-            write!(writer, "{}", pct_color);
+            write!(writer, "{}", self.s.pct_colour());
             write!(writer, "{:>width$}", format!("({:2.2}%)", pct), width = max_pct_width);
 
-            write!(writer, "{}", graph_color);
+            write!(writer, "{}", self.s.graph_colour());
             write!(writer, " {}", self.histogram_bar(max_value, bar_width, p.value));
 
             if i == output_limit - 1 {
-                write!(writer, "{}", regular_color);
+                write!(writer, "{}", self.s.regular_colour());
             } else {
-                write!(writer, "{}\n", key_color);
+                write!(writer, "{}\n", self.s.key_colour());
             }
         }
     }
@@ -108,9 +102,9 @@ impl HistogramWriter {
 mod test {
     use histogram::HistogramWriter;
 
-    #[test]
-    fn histogram_test() {
-        let h = HistogramWriter::new();
-        assert_eq!(1, 1);
-    }
+    // #[test]
+    // fn histogram_test() {
+    //     let h = HistogramWriter::new();
+    //     assert_eq!(1, 1);
+    // }
 }
