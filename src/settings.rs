@@ -105,6 +105,7 @@ impl Settings {
         // non-zero defaults
         s.char_width = 1.0;
         s.match_regexp = String::from(r".");
+        s.height = 15;
 
         let mut opts: Vec<String> = args.collect();
         let rcfile = if opts.len() > 1 && opts[1].starts_with("--rcfile") {

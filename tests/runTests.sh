@@ -24,8 +24,8 @@ grep modem stdin.02.txt | awk '{print $1}' | $distribution --rcfile=../distribut
 printf "4. "
 cat stdin.03.txt | $distribution --rcfile=../distributionrc --size=large --height=8 --width=60 -t=/ --palette=0,31,33,35,37 -c='()' > stdout.04.actual.txt 2> stderr.04.actual.txt
 
-# printf "5. "
-# cat stdin.03.txt | $distribution --rcfile=../distributionrc -c=pc -w=48 --tokenize=word --match=num --size=large --verbose 2> stderr.05.actual.txt | sort -n > stdout.05.actual.txt
+printf "5. "
+cat stdin.03.txt | $distribution --rcfile=../distributionrc -c=pc -w=48 --tokenize=word --match=num --size=large --verbose 2> stderr.05.actual.txt | sort -n > stdout.05.actual.txt
 
 # printf "6. "
 # # generate a large list of deterministic but meaningless numbers
@@ -42,7 +42,7 @@ echo "done."
 err=0
 printf "Comparing results: "
 # for i in 01 02 03 04 05 06 07 ; do
-for i in 01 02 03 04 ; do
+for i in 01 02 03 04 05; do
 	printf "$i. "
 	diff -w stdout.$i.expected.txt stdout.$i.actual.txt
 	if [ $? -ne 0 ]; then
