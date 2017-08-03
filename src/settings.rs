@@ -121,21 +121,23 @@ impl Settings {
             String::from(home.to_str().unwrap())
         };
 
-        let f = File::open(rcfile).unwrap();
-        let file = BufReader::new(&f);
-        for line in file.lines() {
-            let l = line.unwrap();
-            let rcopt = match l.find("#") {
-                Some(idx) => {
-                    let (first, _) = l.split_at(idx);
-                    String::from(first)
+        if let Ok(f) = File::open(rcfile) {
+            let file = BufReader::new(&f);
+            for line in file.lines() {
+                let l = line.unwrap();
+                let rcopt = match l.find("#") {
+                    Some(idx) => {
+                        let (first, _) = l.split_at(idx);
+                        String::from(first)
+                    }
+                    None => l,
+                };
+                if rcopt != "" {
+                    opts.insert(1, String::from(rcopt))
                 }
-                None => l,
-            };
-            if rcopt != "" {
-                opts.insert(1, String::from(rcopt))
             }
         }
+
 
         // manual argument parsing
         for arg in opts {
