@@ -27,10 +27,10 @@ impl HistogramWriter {
         let data: Vec<_> = pairlist.iter().take(output_limit).collect();
         let max_pct_width = 8usize;
 
-        let total_value = pairlist.iter().fold(0, |sum, p| sum + p.value);
-        let max_value = data.iter().fold(0, |max, p| cmp::max(max, p.value));
+        let total_value = pairlist.iter().fold(0, |sum, p| sum + p.value());
+        let max_value = data.iter().fold(0, |max, p| cmp::max(max, p.value()));
 
-        let max_key_width = data.iter().fold(0, |max, p| cmp::max(max, p.key.len()));
+        let max_key_width = data.iter().fold(0, |max, p| cmp::max(max, p.key().len()));
         let max_token_width = format!("{}", max_value).len();
 
         let bar_width = self.width - (max_key_width + 1) - (max_token_width + 1) -
@@ -48,13 +48,13 @@ impl HistogramWriter {
 
 
         for (i, p) in data.iter().enumerate() {
-            let pct = p.value as f64 / total_value as f64 * 100.0f64;
+            let pct = p.value() as f64 / total_value as f64 * 100.0f64;
 
-            write!(writer, "{:>width$}", p.key, width = max_key_width);
+            write!(writer, "{:>width$}", p.key(), width = max_key_width);
             write!(writer, "{}", self.s.regular_colour());
             write!(writer, "|");
             write!(writer, "{}", self.s.ct_colour());
-            write!(writer, "{:>width$}", p.value, width = max_token_width);
+            write!(writer, "{:>width$}", p.value(), width = max_token_width);
             write!(writer, " ");
 
             // A good way to ensure padding is applied is to format your input,
@@ -69,7 +69,7 @@ impl HistogramWriter {
             write!(writer, "{}", self.s.graph_colour());
             write!(writer,
                    " {}",
-                   self.histogram_bar(max_value, bar_width, p.value));
+                   self.histogram_bar(max_value, bar_width, p.value()));
 
             if i == output_limit - 1 {
                 write!(writer, "{}", self.s.regular_colour());

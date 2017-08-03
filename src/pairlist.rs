@@ -3,8 +3,8 @@ use std::cmp::Ordering;
 // deriving PartialOrd depends on order of fields in struct
 #[derive(Debug, Eq, PartialOrd, PartialEq)]
 pub struct Pair {
-    pub value: u64,
-    pub key: String,
+    value: u64,
+    key: String,
 }
 
 impl Pair {
@@ -13,6 +13,14 @@ impl Pair {
             value: value,
             key: key.to_owned(),
         }
+    }
+
+    pub fn value(&self) -> u64 {
+        self.value
+    }
+
+    pub fn key(&self) -> &str {
+        &self.key
     }
 }
 
