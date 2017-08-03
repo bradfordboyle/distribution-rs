@@ -4,12 +4,15 @@ use std::cmp::Ordering;
 #[derive(Debug, Eq, PartialOrd, PartialEq)]
 pub struct Pair {
     pub value: u64,
-    pub key: String
+    pub key: String,
 }
 
 impl Pair {
     pub fn new(value: u64, key: &str) -> Pair {
-        Pair { value: value, key: key.to_owned() }
+        Pair {
+            value: value,
+            key: key.to_owned(),
+        }
     }
 }
 

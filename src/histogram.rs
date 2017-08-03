@@ -15,7 +15,11 @@ impl HistogramWriter {
     pub fn new(s: Settings) -> HistogramWriter {
         let w = s.width();
         let h = s.height();
-        HistogramWriter { s: s, width: w, height: h}
+        HistogramWriter {
+            s: s,
+            width: w,
+            height: h,
+        }
     }
 
     pub fn write_histogram<T: io::Write>(&self, writer: &mut T, pairlist: &Vec<Pair>) {
@@ -29,14 +33,18 @@ impl HistogramWriter {
         let max_key_width = data.iter().fold(0, |max, p| cmp::max(max, p.key.len()));
         let max_token_width = format!("{}", max_value).len();
 
-        let bar_width = self.width - (max_key_width+1) - (max_token_width+1) - (max_pct_width+1) - 1;
+        let bar_width = self.width - (max_key_width + 1) - (max_token_width + 1) -
+                        (max_pct_width + 1) - 1;
 
         let mut stderr = io::stderr();
         write!(stderr, "{:>width$}", "Key", width = max_key_width);
         write!(stderr, "|{:>width$}", "Ct", width = max_token_width);
         write!(stderr, " {:>width$}", "(Pct)", width = max_pct_width);
         write!(stderr, " Histogram\n");
-        write!(stderr, "{}|{}\n", "-".repeat(max_key_width), "-".repeat(self.width - 4));
+        write!(stderr,
+               "{}|{}\n",
+               "-".repeat(max_key_width),
+               "-".repeat(self.width - 4));
 
 
         for (i, p) in data.iter().enumerate() {
@@ -53,10 +61,15 @@ impl HistogramWriter {
             // then use this resulting string to pad your output.
             // https://doc.rust-lang.org/std/fmt/
             write!(writer, "{}", self.s.pct_colour());
-            write!(writer, "{:>width$}", format!("({:2.2}%)", pct), width = max_pct_width);
+            write!(writer,
+                   "{:>width$}",
+                   format!("({:2.2}%)", pct),
+                   width = max_pct_width);
 
             write!(writer, "{}", self.s.graph_colour());
-            write!(writer, " {}", self.histogram_bar(max_value, bar_width, p.value));
+            write!(writer,
+                   " {}",
+                   self.histogram_bar(max_value, bar_width, p.value));
 
             if i == output_limit - 1 {
                 write!(writer, "{}", self.s.regular_colour());
@@ -71,13 +84,26 @@ impl HistogramWriter {
         let one_char: char;
         let histogram_char = self.s.histogram_char();
         if self.s.char_width() < 1f32 {
-            zero_char = self.s.graph_chars().last().expect("graph_chars is empty").clone();
+            zero_char = self.s
+                .graph_chars()
+                .last()
+                .expect("graph_chars is empty")
+                .clone();
             one_char = '\0'
         } else if histogram_char.len() > 1 && self.s.unicode_mode() == false {
-            zero_char = histogram_char.chars().nth(0).unwrap().clone();
-            one_char = histogram_char.chars().nth(1).unwrap().clone();
+            zero_char = histogram_char.chars()
+                .nth(0)
+                .unwrap()
+                .clone();
+            one_char = histogram_char.chars()
+                .nth(1)
+                .unwrap()
+                .clone();
         } else {
-            zero_char = histogram_char.chars().nth(0).expect("histogram_char is empty").clone();
+            zero_char = histogram_char.chars()
+                .nth(0)
+                .expect("histogram_char is empty")
+                .clone();
             one_char = zero_char;
         }
 

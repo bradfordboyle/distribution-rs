@@ -10,7 +10,7 @@ pub trait Tokenizer {
 }
 
 pub struct PreTalliedTokenizer {
-    re: Regex
+    re: Regex,
 }
 
 impl PreTalliedTokenizer {
@@ -30,7 +30,11 @@ impl Tokenizer for PreTalliedTokenizer {
             let foo = line.unwrap();
             // TODO stop unwrapping
             let caps = self.re.captures(foo.as_str()).unwrap();
-            let value = caps.name("value").unwrap().as_str().parse::<u64>().unwrap();
+            let value = caps.name("value")
+                .unwrap()
+                .as_str()
+                .parse::<u64>()
+                .unwrap();
             let key = caps.name("key").unwrap().as_str();
             vec.push(Pair::new(value, key));
         }
@@ -40,7 +44,7 @@ impl Tokenizer for PreTalliedTokenizer {
 }
 
 pub struct LineTokenizer {
-    re: Regex
+    re: Regex,
 }
 
 impl LineTokenizer {
@@ -71,7 +75,7 @@ impl Tokenizer for LineTokenizer {
 
 pub struct RegexTokenizer {
     splitter: Regex,
-    matcher: Regex
+    matcher: Regex,
 }
 
 impl RegexTokenizer {
@@ -79,18 +83,18 @@ impl RegexTokenizer {
         let splitter_re = match splitter {
             "white" => Regex::new(r"\s+").unwrap(),
             "word" => Regex::new(r"\W").unwrap(),
-            _ => Regex::new(splitter).unwrap()
+            _ => Regex::new(splitter).unwrap(),
         };
 
         let matcher_re = match matcher {
             "word" => Regex::new(r"^[A-Z,a-z]+$").unwrap(),
             "num" => Regex::new(r"^\d+$").unwrap(),
-            _ => Regex::new(matcher).unwrap()
+            _ => Regex::new(matcher).unwrap(),
         };
 
         RegexTokenizer {
             splitter: splitter_re,
-            matcher: matcher_re
+            matcher: matcher_re,
         }
     }
 }
@@ -115,13 +119,12 @@ impl Tokenizer for RegexTokenizer {
         }
         vec
     }
-
 }
 
 #[cfg(test)]
 mod test {
     use std::io;
-    use tokenizer::{LineTokenizer,RegexTokenizer,PreTalliedTokenizer,Tokenizer};
+    use tokenizer::{LineTokenizer, RegexTokenizer, PreTalliedTokenizer, Tokenizer};
     use pairlist::Pair;
 
     #[test]
@@ -133,20 +136,17 @@ mod test {
 
     #[test]
     fn key_value_tokenize_single_line() {
-        let t = PreTalliedTokenizer::key_value_tokenizer();;
+        let t = PreTalliedTokenizer::key_value_tokenizer();
         let c = io::Cursor::new(b"a 1\n");
         assert_eq!(t.tokenize(c), vec![Pair::new(1, "a")]);
     }
 
     #[test]
     fn key_value_tokenize_multiple_lines() {
-        let t = PreTalliedTokenizer::key_value_tokenizer();;
+        let t = PreTalliedTokenizer::key_value_tokenizer();
         let c = io::Cursor::new(b"aa 1\nab 2\nba 1");
-        assert_eq!(t.tokenize(c), vec![
-            Pair::new(1, "aa"),
-            Pair::new(2, "ab"),
-            Pair::new(1, "ba")
-        ]);
+        assert_eq!(t.tokenize(c),
+                   vec![Pair::new(1, "aa"), Pair::new(2, "ab"), Pair::new(1, "ba")]);
     }
 
     #[test]
@@ -167,11 +167,8 @@ mod test {
     fn value_key_tokenize_multiple_lines() {
         let t = PreTalliedTokenizer::value_key_tokenizer();
         let c = io::Cursor::new(b"1 aa\n2 ab\n1 ba");
-        assert_eq!(t.tokenize(c), vec![
-            Pair::new(1, "aa"),
-            Pair::new(2, "ab"),
-            Pair::new(1, "ba")
-        ]);
+        assert_eq!(t.tokenize(c),
+                   vec![Pair::new(1, "aa"), Pair::new(2, "ab"), Pair::new(1, "ba")]);
     }
 
     #[test]
@@ -195,11 +192,8 @@ mod test {
         let mut actual = t.tokenize(c);
 
         actual.sort_by(|a, b| b.cmp(&a));
-        assert_eq!(actual, vec![
-            Pair::new(1, "2 ab"),
-            Pair::new(1, "1 ba"),
-            Pair::new(1, "1 aa")
-        ]);
+        assert_eq!(actual,
+                   vec![Pair::new(1, "2 ab"), Pair::new(1, "1 ba"), Pair::new(1, "1 aa")]);
     }
 
     #[test]
@@ -209,11 +203,10 @@ mod test {
         let mut actual = t.tokenize(c);
 
         actual.sort_by(|a, b| b.cmp(&a));
-        assert_eq!(actual, vec![
-            Pair::new(2, "var"),
-            Pair::new(2, "log"),
-            Pair::new(1, "dmesg.1.gz"),
-            Pair::new(1, "apparmor")
-        ]);
+        assert_eq!(actual,
+                   vec![Pair::new(2, "var"),
+                        Pair::new(2, "log"),
+                        Pair::new(1, "dmesg.1.gz"),
+                        Pair::new(1, "apparmor")]);
     }
 }

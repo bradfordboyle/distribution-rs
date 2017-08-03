@@ -8,21 +8,21 @@ pub struct Settings {
     program_name: String,
     total_millis: u32,
     start_time: i64,
-    end_time:          i64,
-    width_arg:         usize,
-    height_arg:        usize,
-    width:            usize,
-    height:           usize,
-    histogram_char:    String,
+    end_time: i64,
+    width_arg: usize,
+    height_arg: usize,
+    width: usize,
+    height: usize,
+    histogram_char: String,
     colourised_output: bool,
-    logarithmic:      bool,
-    num_only:          String,
-    verbose:          bool,
-    graph_values:      String,
-    size:             String,
-    tokenize:         String,
-    match_regexp:      String,
-    stat_interval:     i32,
+    logarithmic: bool,
+    num_only: String,
+    verbose: bool,
+    graph_values: String,
+    size: String,
+    tokenize: String,
+    match_regexp: String,
+    stat_interval: i32,
     num_prunes: u32,
     colour_palette: String,
     regular_colour: String,
@@ -38,7 +38,7 @@ pub struct Settings {
     char_width: f32,
     graph_chars: Vec<char>,
     partial_blocks: Vec<String>,
-    partial_lines: Vec<String>
+    partial_lines: Vec<String>,
 }
 
 impl Settings {
@@ -110,7 +110,7 @@ impl Settings {
         let mut opts: Vec<String> = args.collect();
         let rcfile = if opts.len() > 1 && opts[1].starts_with("--rcfile") {
             let idx = opts[1].find("=").unwrap();
-            let (_, rcfile) = opts[1].split_at(idx+1);
+            let (_, rcfile) = opts[1].split_at(idx + 1);
             String::from(rcfile)
         } else {
             let mut home = match env::home_dir() {
@@ -129,8 +129,8 @@ impl Settings {
                 Some(idx) => {
                     let (first, _) = l.split_at(idx);
                     String::from(first)
-                },
-                None => l
+                }
+                None => l,
             };
             if rcopt != "" {
                 opts.insert(1, String::from(rcopt))
@@ -208,7 +208,8 @@ impl Settings {
             s.graph_chars = vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'];
         }
 
-        // detect whether the user has passed a multibyte unicode character directly as the histogram char
+        // detect whether the user has passed a multibyte unicode character
+        // directly as the histogram char
         if s.histogram_char.as_bytes()[0] > 128 {
             s.unicode_mode = true
         }
