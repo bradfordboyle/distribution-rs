@@ -69,12 +69,59 @@ impl Tokenizer for LineTokenizer {
     }
 }
 
+pub struct RegexTokenizer {
+    splitter: Regex,
+    matcher: Regex
+}
+
+impl RegexTokenizer {
+    pub fn new(splitter: &str, matcher: &str) -> RegexTokenizer {
+        let splitter_re = match splitter {
+            "white" => Regex::new(r"\s+").unwrap(),
+            "word" => Regex::new(r"\W").unwrap(),
+            _ => Regex::new(splitter).unwrap()
+        };
+
+        let matcher_re = match matcher {
+            "word" => Regex::new(r"^[A-Z,a-z]+$").unwrap(),
+            "num" => Regex::new(r"^\d+$").unwrap(),
+            _ => Regex::new(matcher).unwrap()
+        };
+
+        RegexTokenizer {
+            splitter: splitter_re,
+            matcher: matcher_re
+        }
+    }
+}
+
+impl Tokenizer for RegexTokenizer {
+    fn tokenize<T: io::BufRead>(&self, reader: T) -> Vec<Pair> {
+        let mut counts: HashMap<String, u64> = HashMap::new();
+
+        for l in reader.lines() {
+            let line = l.unwrap();
+            for token in self.splitter.split(line.trim_right()) {
+                if self.matcher.is_match(token) {
+                    let value = counts.entry(String::from(token)).or_insert(0);
+                    *value += 1
+                }
+            }
+        }
+
+        let mut vec = Vec::new();
+        for (key, &value) in &counts {
+            vec.push(Pair::new(value, key))
+        }
+        vec
+    }
+
+}
+
 #[cfg(test)]
 mod test {
     use std::io;
-    use tokenizer::PreTalliedTokenizer;
-    use tokenizer::LineTokenizer;
-    use tokenizer::Tokenizer;
+    use tokenizer::{LineTokenizer,RegexTokenizer,PreTalliedTokenizer,Tokenizer};
     use pairlist::Pair;
 
     #[test]
@@ -152,6 +199,21 @@ mod test {
             Pair::new(1, "2 ab"),
             Pair::new(1, "1 ba"),
             Pair::new(1, "1 aa")
+        ]);
+    }
+
+    #[test]
+    fn regex_tokenizer() {
+        let t = RegexTokenizer::new(r"/", r".+");
+        let c = io::Cursor::new("/var/log/apparmor\n/var/log/dmesg.1.gz");
+        let mut actual = t.tokenize(c);
+
+        actual.sort_by(|a, b| b.cmp(&a));
+        assert_eq!(actual, vec![
+            Pair::new(2, "var"),
+            Pair::new(2, "log"),
+            Pair::new(1, "dmesg.1.gz"),
+            Pair::new(1, "apparmor")
         ]);
     }
 }
