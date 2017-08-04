@@ -22,7 +22,7 @@ impl HistogramWriter {
         }
     }
 
-    pub fn write_histogram<T: io::Write>(&self, writer: &mut T, pairlist: &Vec<Pair>) {
+    pub fn write_histogram<T: io::Write>(&self, writer: &mut T, pairlist: &Vec<Pair>) -> io::Result<()> {
         let output_limit = cmp::min(self.height, pairlist.len());
         let data: Vec<_> = pairlist.iter().take(output_limit).collect();
         let max_pct_width = 8usize;
@@ -37,46 +37,48 @@ impl HistogramWriter {
                         (max_pct_width + 1) - 1;
 
         let mut stderr = io::stderr();
-        write!(stderr, "{:>width$}", "Key", width = max_key_width);
-        write!(stderr, "|{:>width$}", "Ct", width = max_token_width);
-        write!(stderr, " {:>width$}", "(Pct)", width = max_pct_width);
-        write!(stderr, " Histogram\n");
+        write!(stderr, "{:>width$}", "Key", width = max_key_width)?;
+        write!(stderr, "|{:>width$}", "Ct", width = max_token_width)?;
+        write!(stderr, " {:>width$}", "(Pct)", width = max_pct_width)?;
+        write!(stderr, " Histogram\n")?;
         write!(stderr,
                "{}|{}\n",
                "-".repeat(max_key_width),
-               "-".repeat(self.width - 4));
+               "-".repeat(self.width - 4))?;
 
 
         for (i, p) in data.iter().enumerate() {
             let pct = p.value() as f64 / total_value as f64 * 100.0f64;
 
-            write!(writer, "{:>width$}", p.key(), width = max_key_width);
-            write!(writer, "{}", self.s.regular_colour());
-            write!(writer, "|");
-            write!(writer, "{}", self.s.ct_colour());
-            write!(writer, "{:>width$}", p.value(), width = max_token_width);
-            write!(writer, " ");
+            write!(writer, "{:>width$}", p.key(), width = max_key_width)?;
+            write!(writer, "{}", self.s.regular_colour())?;
+            write!(writer, "|")?;
+            write!(writer, "{}", self.s.ct_colour())?;
+            write!(writer, "{:>width$}", p.value(), width = max_token_width)?;
+            write!(writer, " ")?;
 
             // A good way to ensure padding is applied is to format your input,
             // then use this resulting string to pad your output.
             // https://doc.rust-lang.org/std/fmt/
-            write!(writer, "{}", self.s.pct_colour());
+            write!(writer, "{}", self.s.pct_colour())?;
             write!(writer,
                    "{:>width$}",
                    format!("({:2.2}%)", pct),
-                   width = max_pct_width);
+                   width = max_pct_width)?;
 
-            write!(writer, "{}", self.s.graph_colour());
+            write!(writer, "{}", self.s.graph_colour())?;
             write!(writer,
                    " {}",
-                   self.histogram_bar(max_value, bar_width, p.value()));
+                   self.histogram_bar(max_value, bar_width, p.value()))?;
 
             if i == output_limit - 1 {
-                write!(writer, "{}", self.s.regular_colour());
+                write!(writer, "{}\n", self.s.regular_colour())?;
             } else {
-                write!(writer, "{}\n", self.s.key_colour());
+                write!(writer, "{}\n", self.s.key_colour())?;
             }
+
         }
+        Ok(())
     }
 
     fn histogram_bar(&self, max_value: u64, bar_width: usize, bar_value: u64) -> String {
