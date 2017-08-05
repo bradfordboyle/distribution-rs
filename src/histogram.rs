@@ -30,7 +30,7 @@ impl HistogramWriter {
         let total_value = pairlist.iter().fold(0, |sum, p| sum + p.value());
         let max_value = data.iter().fold(0, |max, p| cmp::max(max, p.value()));
 
-        let max_key_width = data.iter().fold(0, |max, p| cmp::max(max, p.key().len()));
+        let max_key_width = data.iter().fold(3, |max, p| cmp::max(max, p.key().len()));
         let max_token_width = format!("{}", max_value).len();
 
         let bar_width = self.width - (max_key_width + 1) - (max_token_width + 1) -
