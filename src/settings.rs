@@ -1,7 +1,9 @@
-use std::io::BufReader;
-use std::io::BufRead;
+use std::io::{self, BufRead, BufReader};
 use std::env;
+use std::ffi::OsStr;
 use std::fs::File;
+use std::path::PathBuf;
+use std::process;
 
 #[derive(Debug,Default)]
 pub struct Settings {
@@ -103,6 +105,7 @@ impl Settings {
         let mut s: Settings = Default::default();
 
         // non-zero defaults
+        s.program_name = Settings::get_program_name().unwrap();
         s.char_width = 1.0;
         s.match_regexp = String::from(r".");
         s.width = 80;
@@ -145,7 +148,8 @@ impl Settings {
         // manual argument parsing
         for arg in opts {
             if arg == "-h" || arg == "--help" {
-                panic!("No usage yet!");
+                s.do_usage(&mut io::stdout()).expect("error printing usage");
+                process::exit(1);
             } else if arg == "-c" || arg == "--color" {
                 s.colourised_output = true;
             } else if arg == "-g" || arg == "--graph" {
@@ -222,4 +226,85 @@ impl Settings {
         // println!("rcfile: {:?}", s);
         s
     }
+
+    fn do_usage<T: io::Write>(&self, writer: &mut T) -> io::Result<()> {
+        write!(writer, "")?;
+        write!(writer, "")?;
+        write!(writer, "")?;
+        write!(writer, "usage: <commandWithOutput> | {}\n", self.program_name)?;
+        write!(writer, "         [--size={{sm|med|lg|full}} | --width=<width> --height=<height>]\n")?;
+        write!(writer, "         [--color] [--palette=r,k,c,p,g]\n")?;
+        write!(writer, "         [--Tokenize=<tokenChar>]\n")?;
+        write!(writer, "         [--graph[=[kv|vk]] [--numonly[=derivative,diff|abs,absolute,actual]]\n")?;
+        write!(writer, "         [--char=<barChars>|<substitutionString>]\n")?;
+        write!(writer, "         [--help] [--verbose]\n")?;
+        write!(writer, "  --keys=K       every {} values added, prune hash to K keys (default 5000)\n", self.key_prune_interval)?;
+        write!(writer, "  --char=C       character(s) to use for histogram character, some substitutions follow:\n")?;
+        write!(writer, "        pl       Use 1/3-width unicode partial lines to simulate 3x actual terminal width\n")?;
+        write!(writer, "        pb       Use 1/8-width unicode partial blocks to simulate 8x actual terminal width\n")?;
+        write!(writer, "        ba       (▬) Bar\n")?;
+        write!(writer, "        bl       (Ξ) Building\n")?;
+        write!(writer, "        em       (—) Emdash\n")?;
+        write!(writer, "        me       (⋯) Mid-Elipses\n")?;
+        write!(writer, "        di       (♦) Diamond\n")?;
+        write!(writer, "        dt       (•) Dot\n")?;
+        write!(writer, "        sq       (□) Square\n")?;
+        write!(writer, "  --color        colourise the output\n")?;
+        write!(writer, "  --graph[=G]    input is already key/value pairs. vk is default:\n")?;
+        write!(writer, "        kv       input is ordered key then value\n")?;
+        write!(writer, "        vk       input is ordered value then key\n")?;
+        write!(writer, "  --height=N     height of histogram, headers non-inclusive, overrides --size\n")?;
+        write!(writer, "  --help         get help\n")?;
+        write!(writer, "  --logarithmic  logarithmic graph\n")?;
+        write!(writer, "  --match=RE     only match lines (or tokens) that match this regexp, some substitutions follow:\n")?;
+        write!(writer, "        word     ^[A-Z,a-z]+\\$ - tokens/lines must be entirely alphabetic\n")?;
+        write!(writer, "        num      ^\\d+\\$        - tokens/lines must be entirely numeric\n")?;
+        write!(writer, "  --numonly[=N]  input is numerics, simply graph values without labels\n")?;
+        write!(writer, "        actual   input is just values (default - abs, absolute are synonymous to actual)\n")?;
+        write!(writer, "        diff     input monotonically-increasing, graph differences (of 2nd and later values)\n")?;
+        write!(writer, "  --palette=P    comma-separated list of ANSI colour values for portions of the output\n")?;
+        write!(writer, "                 in this order: regular, key, count, percent, graph. implies --color.\n")?;
+        write!(writer, "  --rcfile=F     use this rcfile instead of ~/.distributionrc - must be first argument!\n")?;
+        write!(writer, "  --size=S       size of histogram, can abbreviate to single character, overridden by --width/--height\n")?;
+        write!(writer, "        small    40x10\n")?;
+        write!(writer, "        medium   80x20\n")?;
+        write!(writer, "        large    120x30\n")?;
+        write!(writer, "        full     terminal width x terminal height (approximately)\n")?;
+        write!(writer, "  --Tokenize=RE  split input on regexp RE and make histogram of all resulting tokens\n")?;
+        write!(writer, "        word     [^\\w] - split on non-word characters like colons, brackets, commas, etc\n")?;
+        write!(writer, "        white    \\s    - split on whitespace\n")?;
+        write!(writer, "  --width=N      width of the histogram report, N characters, overrides --size\n")?;
+        write!(writer, "  --verbose      be verbose\n")?;
+        write!(writer, "\n")?;
+        write!(writer, "You can use single-characters options, like so: -h=25 -w=20 -v. You must still include the =\n")?;
+        write!(writer, "\n")?;
+        write!(writer, "Samples:\n")?;
+        write!(writer, "  du -sb /etc/* | {} --palette=0,37,34,33,32 --graph\n", self.program_name)?;
+        write!(writer, "  du -sk /etc/* | awk '{{print $2\" \"$1}}' | {} --graph=kv\n", self.program_name)?;
+        write!(writer, "  zcat /var/log/syslog*gz | {} --char=o --Tokenize=white\n", self.program_name)?;
+        write!(writer, "  zcat /var/log/syslog*gz | awk '{{print \\$5}}'  | {} -t=word -m-word -h=15 -c=/\n", self.program_name)?;
+        write!(writer, "  zcat /var/log/syslog*gz | cut -c 1-9        | {} -width=60 -height=10 -char=em\n", self.program_name)?;
+        write!(writer, "  find /etc -type f       | cut -c 6-         | {} -Tokenize=/ -w=90 -h=35 -c=dt\n", self.program_name)?;
+        write!(writer, "  cat /usr/share/dict/words | awk '{{print length(\\$1)}}' | {} -c=* -w=50 -h=10 | sort -n\n", self.program_name)?;
+        write!(writer, "\n")?;
+        Ok(())
+    }
+
+    pub fn get_program_name() -> Result<String, String> {
+        let current_exe: PathBuf = match env::current_exe() {
+            Ok(path) => path,
+            Err(err) => return Err(err.to_string())
+        };
+
+        let file_name: &OsStr = match current_exe.file_name() {
+            Some(name) => name,
+            None => return Err("oh no!".to_string())
+        };
+
+        match file_name.to_str() {
+            Some(name) => Ok(String::from(name)),
+            None => return Err("oh no!".to_string())
+        }
+    }
+
 }
