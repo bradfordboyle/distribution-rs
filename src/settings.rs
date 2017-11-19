@@ -114,7 +114,9 @@ impl Settings {
         self.graph_colour.as_str()
     }
 
-    pub fn new(args: env::Args) -> Settings {
+    pub fn new<I>(args: I) -> Settings
+        where I: Iterator<Item = String>
+    {
         let mut s: Settings = Default::default();
 
         // non-zero defaults
@@ -127,6 +129,7 @@ impl Settings {
         s.histogram_char = String::from("-");
 
         let mut opts: Vec<String> = args.collect();
+        // FIXME rcfile may not be first passed argument
         let rcfile = if opts.len() > 1 && opts[1].starts_with("--rcfile") {
             let idx = opts[1].find("=").unwrap();
             let (_, rcfile) = opts[1].split_at(idx + 1);
@@ -152,7 +155,7 @@ impl Settings {
                     None => l,
                 };
                 if rcopt != "" {
-                    opts.insert(1, String::from(rcopt))
+                    opts.insert(0, String::from(rcopt))
                 }
             }
         }
@@ -326,4 +329,187 @@ impl Settings {
             None => return Err("oh no!".to_string()),
         }
     }
+}
+
+#[cfg(test)]
+mod test {
+    use super::{PreTallied, Settings};
+
+    #[test]
+    fn test_empty_args() {
+        let args: Vec<String> = Vec::new();
+        let s = Settings::new(args.into_iter());
+
+        // check non-zero defaults
+        assert_eq!(s.width(), 80);
+        assert_eq!(s.height(), 15);
+    }
+
+    macro_rules! test_option {
+        ($name:ident, $opt:expr, $($f:ident, $v:expr),+) => {
+            #[test]
+            fn $name () {
+                let args = vec![$opt.to_string()];
+                let s = Settings::new(args.into_iter());
+
+                $(assert_eq!(s.$f, $v);)*
+            }
+        };
+    }
+
+    macro_rules! test_option_fail {
+        ($name:ident, $opt:expr) => {
+            #[test]
+            #[should_panic]
+            fn $name () {
+                let args = vec![$opt.to_string()];
+
+                Settings::new(args.into_iter());
+            }
+        };
+    }
+
+    test_option!(rcfile,
+                 "--rcfile=/dev/null",
+                 char_width,
+                 1.0,
+                 match_regexp,
+                 r".",
+                 width,
+                 80,
+                 height,
+                 15,
+                 colour_palette,
+                 "0,0,32,35,34",
+                 histogram_char,
+                 "-");
+
+    test_option!(no_color, "", colourised_output, false);
+    test_option!(short_color, "-c", colourised_output, true);
+    test_option!(long_color, "--color", colourised_output, true);
+
+    test_option!(not_graph, "", graph_values, PreTallied::NA);
+    test_option!(short_graph, "-g", graph_values, PreTallied::ValueKey);
+    test_option!(long_graph, "--graph", graph_values, PreTallied::ValueKey);
+    test_option!(long_graph_vk,
+                 "--graph=vk",
+                 graph_values,
+                 PreTallied::ValueKey);
+    test_option!(short_graph_kv,
+                 "--graph=kv",
+                 graph_values,
+                 PreTallied::KeyValue);
+    test_option_fail!(invalid_graph, "--graph=foo");
+
+    test_option!(short_width, "-w=40", width, 40);
+    test_option!(long_width, "--width=60", width, 60);
+    test_option_fail!(invalid_short_width, "-w=abc");
+    test_option_fail!(invalid_long_width, "--width=xyz");
+
+    test_option!(short_height, "-h=77", height, 77);
+    test_option!(long_height, "--height=113", height, 113);
+    test_option_fail!(invalid_short_height, "-h=abc");
+    test_option_fail!(invalid_long_height, "--height=xyz");
+
+    test_option!(short_char, "-c=-", histogram_char, "-");
+    test_option!(long_char, "--char=x", histogram_char, "x");
+    test_option!(char_dt,
+                 "--char=dt",
+                 histogram_char,
+                 "•",
+                 unicode_mode,
+                 true);
+    test_option!(char_pb,
+                 "--char=pb",
+                 histogram_char,
+                 "pb",
+                 char_width,
+                 0.125,
+                 graph_chars,
+                 vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█']);
+    test_option!(char_unicode,
+                 "--char=\u{2652}",
+                 histogram_char,
+                 "\u{2652}",
+                 char_width,
+                 1.0,
+                 unicode_mode,
+                 true);
+
+    test_option!(short_palette,
+                 "-p=0,37,34,33,32",
+                 colour_palette,
+                 "0,37,34,33,32",
+                 colourised_output,
+                 true);
+    test_option!(long_palette,
+                 "--palette=0,37,34,33,32",
+                 colour_palette,
+                 "0,37,34,33,32",
+                 colourised_output,
+                 true);
+    test_option_fail!(invalid_short_palette, "-p=x");
+    test_option_fail!(invalid_long_palette, "--palette=x");
+
+    test_option!(short_size_small,
+                 "-s=small",
+                 size,
+                 "small",
+                 width,
+                 60,
+                 height,
+                 10);
+    test_option!(long_size_small,
+                 "--size=small",
+                 size,
+                 "small",
+                 width,
+                 60,
+                 height,
+                 10);
+    test_option!(short_size_sm, "-s=sm", size, "sm", width, 60, height, 10);
+    test_option!(long_size_sm, "--size=sm", size, "sm", width, 60, height, 10);
+    test_option!(short_size_s, "-s=s", size, "s", width, 60, height, 10);
+    test_option!(long_size_s, "--size=s", size, "s", width, 60, height, 10);
+
+    test_option!(short_size_medium,
+                 "-s=medium",
+                 size,
+                 "medium",
+                 width,
+                 100,
+                 height,
+                 20);
+    test_option!(long_size_medium,
+                 "--size=medium",
+                 size,
+                 "medium",
+                 width,
+                 100,
+                 height,
+                 20);
+    test_option!(short_size_med,
+                 "-s=med",
+                 size,
+                 "med",
+                 width,
+                 100,
+                 height,
+                 20);
+    test_option!(long_size_med,
+                 "--size=med",
+                 size,
+                 "med",
+                 width,
+                 100,
+                 height,
+                 20);
+    test_option!(short_size_m, "-s=m", size, "m", width, 100, height, 20);
+    test_option!(long_size_m, "--size=m", size, "m", width, 100, height, 20);
+
+    test_option!(short_tokenize, "-t=(.)", tokenize, "(.)");
+    test_option!(long_tokenize, "--tokenize=(.)", tokenize, "(.)");
+
+    test_option!(short_match, "-m=(.)", match_regexp, "(.)");
+    test_option!(long_match, "--match=(.)", match_regexp, "(.)");
 }

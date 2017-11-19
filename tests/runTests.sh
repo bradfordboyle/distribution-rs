@@ -1,6 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 
-set -o xtrace
+# set -o errexit
+set -o pipefail
+set -o nounset
 
 # make sure env is setup proper
 distribution="../target/debug/distribution"
