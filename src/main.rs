@@ -11,16 +11,15 @@ use std::io;
 use histogram::HistogramWriter;
 use tokenizer::{LineTokenizer, PreTalliedTokenizer, RegexTokenizer};
 use tokenizer::Tokenizer;
-use settings::Settings;
+use settings::{PreTallied, Settings};
 
 fn main() {
     let s = Settings::new(env::args());
-    // println!("{:?}", s);
     let stdin = io::stdin();
     let stdin_lock = stdin.lock();
-    let mut p = if s.graph_values() == "vk" {
+    let mut p = if s.graph_values() == &PreTallied::ValueKey {
         PreTalliedTokenizer::value_key_tokenizer().tokenize(stdin_lock)
-    } else if s.graph_values() == "kv" {
+    } else if s.graph_values() == &PreTallied::KeyValue {
         PreTalliedTokenizer::key_value_tokenizer().tokenize(stdin_lock)
     } else if s.tokenize() != "" {
         RegexTokenizer::new(s.tokenize(), s.match_regexp()).tokenize(stdin_lock)
