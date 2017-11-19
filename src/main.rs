@@ -13,8 +13,6 @@ use tokenizer::{LineTokenizer, PreTalliedTokenizer, RegexTokenizer};
 use tokenizer::Tokenizer;
 use settings::Settings;
 
-
-
 fn main() {
     let s = Settings::new(env::args());
     // println!("{:?}", s);

@@ -85,7 +85,8 @@ impl HistogramWriter {
         let zero_char: char;
         let one_char: char;
         let histogram_char = self.s.histogram_char();
-        if self.s.char_width() < 1f32 {
+        let char_width = self.s.char_width();
+        if char_width < 1.0 {
             zero_char = self.s
                 .graph_chars()
                 .last()
@@ -113,13 +114,12 @@ impl HistogramWriter {
         let int_width = width.floor() as usize;
         let rem = width - int_width as f64;
         let graph_char = vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'];
-        let char_width = 1.0f64;
 
         let mut bar = zero_char.to_string().repeat(int_width);
 
-        if char_width == 1.0f64 {
+        if char_width == 1.0 {
             bar.push(one_char.clone());
-        } else if char_width < 1.0f64 && rem > char_width {
+        } else if char_width < 1.0 && rem > char_width {
             let which = (rem / char_width).floor() as usize;
             bar.push(graph_char[which])
         }

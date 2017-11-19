@@ -35,7 +35,7 @@ pub struct Settings {
     key_prune_interval: u32,
     max_keys: u32,
     unicode_mode: bool,
-    char_width: f32,
+    char_width: f64,
     graph_chars: Vec<char>,
     partial_blocks: Vec<String>,
     partial_lines: Vec<String>,
@@ -63,7 +63,7 @@ impl Settings {
         self.match_regexp.as_str()
     }
 
-    pub fn char_width(&self) -> f32 {
+    pub fn char_width(&self) -> f64 {
         self.char_width
     }
 
