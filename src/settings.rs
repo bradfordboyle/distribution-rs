@@ -5,6 +5,19 @@ use std::fs::File;
 use std::path::PathBuf;
 use std::process;
 
+#[derive(Debug, PartialEq)]
+pub enum PreTallied {
+    NA,
+    KeyValue,
+    ValueKey,
+}
+
+impl Default for PreTallied {
+    fn default() -> PreTallied {
+        PreTallied::NA
+    }
+}
+
 #[derive(Debug,Default)]
 pub struct Settings {
     program_name: String,
@@ -20,7 +33,7 @@ pub struct Settings {
     logarithmic: bool,
     num_only: String,
     verbose: bool,
-    graph_values: String,
+    graph_values: PreTallied,
     size: String,
     tokenize: String,
     match_regexp: String,
@@ -53,8 +66,8 @@ impl Settings {
         self.height
     }
 
-    pub fn graph_values(&self) -> &str {
-        self.graph_values.as_str()
+    pub fn graph_values(&self) -> &PreTallied {
+        &self.graph_values
     }
 
     pub fn tokenize(&self) -> &str {
@@ -156,7 +169,7 @@ impl Settings {
                 // can pass --graph without option, will default to value/key ordering
                 // since unix perfers that for piping-to-sort reasons
                 // TODO: replace strings w/ ENUMs
-                s.graph_values = String::from("vk");
+                s.graph_values = PreTallied::ValueKey;
             } else {
                 let v: Vec<&str> = arg.splitn(2, "=").collect();
                 if v[0] == "-w" || v[0] == "--width" {
@@ -166,6 +179,12 @@ impl Settings {
                     s.height_arg = v[1].parse::<usize>().unwrap();
                 } else if v[0] == "-c" || v[0] == "--char" {
                     s.histogram_char = String::from(v[1]);
+                } else if v[0] == "-g" || v[0] == "--graph" {
+                    s.graph_values = match v[1] {
+                        "vk" => PreTallied::ValueKey,
+                        "kv" => PreTallied::KeyValue,
+                        _ => panic!("Invalid graph value"),
+                    }
                 } else if v[0] == "-p" || v[0] == "--palette" {
                     s.colour_palette = String::from(v[1]);
                     s.colourised_output = true;
@@ -227,6 +246,7 @@ impl Settings {
         s
     }
 
+    #[cfg_attr(rustfmt, rustfmt_skip)]
     fn do_usage<T: io::Write>(&self, writer: &mut T) -> io::Result<()> {
         write!(writer, "")?;
         write!(writer, "")?;
@@ -293,18 +313,17 @@ impl Settings {
     pub fn get_program_name() -> Result<String, String> {
         let current_exe: PathBuf = match env::current_exe() {
             Ok(path) => path,
-            Err(err) => return Err(err.to_string())
+            Err(err) => return Err(err.to_string()),
         };
 
         let file_name: &OsStr = match current_exe.file_name() {
             Some(name) => name,
-            None => return Err("oh no!".to_string())
+            None => return Err("oh no!".to_string()),
         };
 
         match file_name.to_str() {
             Some(name) => Ok(String::from(name)),
-            None => return Err("oh no!".to_string())
+            None => return Err("oh no!".to_string()),
         }
     }
-
 }

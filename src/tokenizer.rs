@@ -204,9 +204,6 @@ mod test {
 
         actual.sort_by(|a, b| b.cmp(&a));
         assert_eq!(actual,
-                   vec![Pair::new(2, "var"),
-                        Pair::new(2, "log"),
-                        Pair::new(1, "dmesg.1.gz"),
-                        Pair::new(1, "apparmor")]);
+                   vec![Pair::new(2, "var"), Pair::new(2, "log"), Pair::new(1, "dmesg.1.gz"), Pair::new(1, "apparmor")]);
     }
 }
