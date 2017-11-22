@@ -11,7 +11,7 @@ impl Pair {
     pub fn new(value: u64, key: &str) -> Pair {
         Pair {
             value: value,
-            key: key.to_owned(),
+            key: key.to_string(),
         }
     }
 
