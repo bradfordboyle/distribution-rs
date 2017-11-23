@@ -3,6 +3,9 @@ Distribution
 
 A Rust verion of philovivero's [distribution][] script.
 
+[![Build Status](https://travis-ci.org/bradfordboyle/distribution-rs.svg?branch=master)](https://travis-ci.org/bradfordboyle/distribution-rs)
+[![Coverage Status](https://coveralls.io/repos/github/bradfordboyle/distribution-rs/badge.svg?branch=master)](https://coveralls.io/github/bradfordboyle/distribution-rs?branch=master)
+
 ```sh
 $ cat tests/stdin.01.txt | distribution --graph
                    Key|     Ct    (Pct) Histogram
