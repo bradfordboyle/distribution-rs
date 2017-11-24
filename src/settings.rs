@@ -349,7 +349,7 @@ mod test {
         ($name:ident, $opt:expr, $($f:ident, $v:expr),+) => {
             #[test]
             fn $name () {
-                let args = vec![$opt.to_string()];
+                let args = vec!["test".to_string(), "--rcfile=/dev/null".to_string(), $opt.to_string()];
                 let s = Settings::new(args.into_iter());
 
                 $(assert_eq!(s.$f, $v);)*
