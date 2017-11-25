@@ -27,9 +27,8 @@ fn main() {
         LineTokenizer::new(r".").tokenize(stdin_lock)
     };
 
-    p.sort_by(|a, b| b.cmp(a));
     let h = HistogramWriter::new(s);
     let stdout = io::stdout();
     let mut handle = stdout.lock();
-    h.write_histogram(&mut handle, &p).expect("Unable to write histogram to STDOUT");
+    h.write_histogram(&mut handle, &mut p).expect("Unable to write histogram to STDOUT");
 }
