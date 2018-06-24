@@ -1,9 +1,8 @@
 use std::collections::HashMap;
 use std::io;
 
-use regex::Regex;
 use pairlist::Pair;
-
+use regex::Regex;
 
 pub trait Tokenizer {
     fn tokenize<T: io::BufRead>(&self, reader: T) -> Vec<Pair>;
@@ -15,11 +14,15 @@ pub struct PreTalliedTokenizer {
 
 impl PreTalliedTokenizer {
     pub fn key_value_tokenizer() -> PreTalliedTokenizer {
-        PreTalliedTokenizer { re: Regex::new(r"^\s*(?P<key>.+)\s+(?P<value>\d+)$").unwrap() }
+        PreTalliedTokenizer {
+            re: Regex::new(r"^\s*(?P<key>.+)\s+(?P<value>\d+)$").unwrap(),
+        }
     }
 
     pub fn value_key_tokenizer() -> PreTalliedTokenizer {
-        PreTalliedTokenizer { re: Regex::new(r"^\s*(?P<value>\d+)\s+(?P<key>.+)$").unwrap() }
+        PreTalliedTokenizer {
+            re: Regex::new(r"^\s*(?P<value>\d+)\s+(?P<key>.+)$").unwrap(),
+        }
     }
 }
 
@@ -30,11 +33,7 @@ impl Tokenizer for PreTalliedTokenizer {
             let foo = line.unwrap();
             // TODO stop unwrapping
             let caps = self.re.captures(foo.as_str()).unwrap();
-            let value = caps.name("value")
-                .unwrap()
-                .as_str()
-                .parse::<u64>()
-                .unwrap();
+            let value = caps.name("value").unwrap().as_str().parse::<u64>().unwrap();
             let key = caps.name("key").unwrap().as_str();
             vec.push(Pair::new(value, key));
         }
@@ -49,7 +48,9 @@ pub struct LineTokenizer {
 
 impl LineTokenizer {
     pub fn new(matcher: &str) -> LineTokenizer {
-        LineTokenizer { re: Regex::new(matcher).unwrap() }
+        LineTokenizer {
+            re: Regex::new(matcher).unwrap(),
+        }
     }
 }
 
@@ -123,9 +124,9 @@ impl Tokenizer for RegexTokenizer {
 
 #[cfg(test)]
 mod test {
-    use std::io;
-    use tokenizer::{LineTokenizer, RegexTokenizer, PreTalliedTokenizer, Tokenizer};
     use pairlist::Pair;
+    use std::io;
+    use tokenizer::{LineTokenizer, PreTalliedTokenizer, RegexTokenizer, Tokenizer};
 
     #[test]
     fn key_value_tokenize_empty_reader() {
@@ -145,8 +146,7 @@ mod test {
     fn key_value_tokenize_multiple_lines() {
         let t = PreTalliedTokenizer::key_value_tokenizer();
         let c = io::Cursor::new(b"aa 1\nab 2\nba 1");
-        assert_eq!(t.tokenize(c),
-                   vec![Pair::new(1, "aa"), Pair::new(2, "ab"), Pair::new(1, "ba")]);
+        assert_eq!(t.tokenize(c), vec![Pair::new(1, "aa"), Pair::new(2, "ab"), Pair::new(1, "ba")]);
     }
 
     #[test]
@@ -167,8 +167,7 @@ mod test {
     fn value_key_tokenize_multiple_lines() {
         let t = PreTalliedTokenizer::value_key_tokenizer();
         let c = io::Cursor::new(b"1 aa\n2 ab\n1 ba");
-        assert_eq!(t.tokenize(c),
-                   vec![Pair::new(1, "aa"), Pair::new(2, "ab"), Pair::new(1, "ba")]);
+        assert_eq!(t.tokenize(c), vec![Pair::new(1, "aa"), Pair::new(2, "ab"), Pair::new(1, "ba")]);
     }
 
     #[test]
@@ -192,8 +191,7 @@ mod test {
         let mut actual = t.tokenize(c);
 
         actual.sort_by(|a, b| b.cmp(&a));
-        assert_eq!(actual,
-                   vec![Pair::new(1, "2 ab"), Pair::new(1, "1 ba"), Pair::new(1, "1 aa")]);
+        assert_eq!(actual, vec![Pair::new(1, "2 ab"), Pair::new(1, "1 ba"), Pair::new(1, "1 aa")]);
     }
 
     #[test]
@@ -203,7 +201,14 @@ mod test {
         let mut actual = t.tokenize(c);
 
         actual.sort_by(|a, b| b.cmp(&a));
-        assert_eq!(actual,
-                   vec![Pair::new(2, "var"), Pair::new(2, "log"), Pair::new(1, "dmesg.1.gz"), Pair::new(1, "apparmor")]);
+        assert_eq!(
+            actual,
+            vec![
+                Pair::new(2, "var"),
+                Pair::new(2, "log"),
+                Pair::new(1, "dmesg.1.gz"),
+                Pair::new(1, "apparmor"),
+            ]
+        );
     }
 }

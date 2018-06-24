@@ -21,11 +21,7 @@ impl HistogramWriter {
     pub fn new(s: Settings) -> HistogramWriter {
         let w = s.width();
         let h = s.height();
-        HistogramWriter {
-            s: s,
-            width: w,
-            height: h,
-        }
+        HistogramWriter { s: s, width: w, height: h }
     }
 
     fn write_header<W: io::Write>(&self, w: &mut W, col_widths: ColumnWidths) -> io::Result<()> {
@@ -33,10 +29,7 @@ impl HistogramWriter {
         write!(w, "|{:>width$}", "Ct", width = col_widths.token)?;
         write!(w, " {:>width$}", "(Pct)", width = col_widths.pct)?;
         write!(w, " Histogram\n")?;
-        write!(w,
-               "{}|{}\n",
-               "-".repeat(col_widths.key),
-               "-".repeat(self.width - 4))?;
+        write!(w, "{}|{}\n", "-".repeat(col_widths.key), "-".repeat(self.width - 4))?;
 
         Ok(())
     }
@@ -82,22 +75,16 @@ impl HistogramWriter {
             // then use this resulting string to pad your output.
             // https://doc.rust-lang.org/std/fmt/
             write!(writer, "{}", self.s.pct_colour())?;
-            write!(writer,
-                   "{:>width$}",
-                   format!("({:2.2}%)", pct),
-                   width = max_pct_width)?;
+            write!(writer, "{:>width$}", format!("({:2.2}%)", pct), width = max_pct_width)?;
 
             write!(writer, "{}", self.s.graph_colour())?;
-            write!(writer,
-                   " {}",
-                   self.histogram_bar(max_value, bar_width, p.value()))?;
+            write!(writer, " {}", self.histogram_bar(max_value, bar_width, p.value()))?;
 
             if i == output_limit - 1 {
                 write!(writer, "{}\n", self.s.regular_colour())?;
             } else {
                 write!(writer, "{}\n", self.s.key_colour())?;
             }
-
         }
         Ok(())
     }
@@ -108,26 +95,13 @@ impl HistogramWriter {
         let histogram_char = self.s.histogram_char();
         let char_width = self.s.char_width();
         if char_width < 1.0 {
-            zero_char = self.s
-                .graph_chars()
-                .last()
-                .expect("graph_chars is empty")
-                .clone();
+            zero_char = self.s.graph_chars().last().expect("graph_chars is empty").clone();
             one_char = '\0'
         } else if histogram_char.len() > 1 && self.s.unicode_mode() == false {
-            zero_char = histogram_char.chars()
-                .nth(0)
-                .unwrap()
-                .clone();
-            one_char = histogram_char.chars()
-                .nth(1)
-                .unwrap()
-                .clone();
+            zero_char = histogram_char.chars().nth(0).unwrap().clone();
+            one_char = histogram_char.chars().nth(1).unwrap().clone();
         } else {
-            zero_char = histogram_char.chars()
-                .nth(0)
-                .expect("histogram_char is empty")
-                .clone();
+            zero_char = histogram_char.chars().nth(0).expect("histogram_char is empty").clone();
             one_char = zero_char;
         }
 
@@ -184,11 +158,7 @@ mod test {
 
         let s = Settings::new(args!["--width=10"]);
         let h = HistogramWriter::new(s);
-        let c = ColumnWidths {
-            key: 3,
-            token: 3,
-            pct: 3,
-        };
+        let c = ColumnWidths { key: 3, token: 3, pct: 3 };
 
         h.write_header(&mut buff, c).unwrap();
 

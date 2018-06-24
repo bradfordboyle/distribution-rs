@@ -1,17 +1,17 @@
 extern crate regex;
 
-mod tokenizer;
-mod pairlist;
 mod histogram;
+mod pairlist;
 mod settings;
+mod tokenizer;
 
 use std::env;
 use std::io;
 
 use histogram::HistogramWriter;
-use tokenizer::{LineTokenizer, PreTalliedTokenizer, RegexTokenizer};
-use tokenizer::Tokenizer;
 use settings::{PreTallied, Settings};
+use tokenizer::Tokenizer;
+use tokenizer::{LineTokenizer, PreTalliedTokenizer, RegexTokenizer};
 
 fn main() {
     let s = Settings::new(env::args());

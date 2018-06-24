@@ -1,7 +1,7 @@
-use std::io::{self, BufRead, BufReader};
 use std::env;
 use std::ffi::OsStr;
 use std::fs::File;
+use std::io::{self, BufRead, BufReader};
 use std::path::PathBuf;
 use std::process;
 
@@ -18,7 +18,7 @@ impl Default for PreTallied {
     }
 }
 
-#[derive(Debug,Default)]
+#[derive(Debug, Default)]
 pub struct Settings {
     program_name: String,
     total_millis: u32,
@@ -115,7 +115,8 @@ impl Settings {
     }
 
     pub fn new<I>(args: I) -> Settings
-        where I: Iterator<Item = String>
+    where
+        I: Iterator<Item = String>,
     {
         let mut s: Settings = Default::default();
 
@@ -159,7 +160,6 @@ impl Settings {
                 }
             }
         }
-
 
         // manual argument parsing
         for arg in opts {
@@ -361,7 +361,7 @@ mod test {
         ($name:ident, $opt:expr) => {
             #[test]
             #[should_panic]
-            fn $name () {
+            fn $name() {
                 let args = vec![$opt.to_string()];
 
                 Settings::new(args.into_iter());
@@ -369,20 +369,22 @@ mod test {
         };
     }
 
-    test_option!(rcfile,
-                 "--rcfile=/dev/null",
-                 char_width,
-                 1.0,
-                 match_regexp,
-                 r".",
-                 width,
-                 80,
-                 height,
-                 15,
-                 colour_palette,
-                 "0,0,32,35,34",
-                 histogram_char,
-                 "-");
+    test_option!(
+        rcfile,
+        "--rcfile=/dev/null",
+        char_width,
+        1.0,
+        match_regexp,
+        r".",
+        width,
+        80,
+        height,
+        15,
+        colour_palette,
+        "0,0,32,35,34",
+        histogram_char,
+        "-"
+    );
 
     test_option!(no_color, "", colourised_output, false);
     test_option!(short_color, "-c", colourised_output, true);
@@ -391,14 +393,8 @@ mod test {
     test_option!(not_graph, "", graph_values, PreTallied::NA);
     test_option!(short_graph, "-g", graph_values, PreTallied::ValueKey);
     test_option!(long_graph, "--graph", graph_values, PreTallied::ValueKey);
-    test_option!(long_graph_vk,
-                 "--graph=vk",
-                 graph_values,
-                 PreTallied::ValueKey);
-    test_option!(short_graph_kv,
-                 "--graph=kv",
-                 graph_values,
-                 PreTallied::KeyValue);
+    test_option!(long_graph_vk, "--graph=vk", graph_values, PreTallied::ValueKey);
+    test_option!(short_graph_kv, "--graph=kv", graph_values, PreTallied::KeyValue);
     test_option_fail!(invalid_graph, "--graph=foo");
 
     test_option!(short_width, "-w=40", width, 40);
@@ -413,97 +409,58 @@ mod test {
 
     test_option!(short_char, "-c=-", histogram_char, "-");
     test_option!(long_char, "--char=x", histogram_char, "x");
-    test_option!(char_dt,
-                 "--char=dt",
-                 histogram_char,
-                 "•",
-                 unicode_mode,
-                 true);
-    test_option!(char_pb,
-                 "--char=pb",
-                 histogram_char,
-                 "pb",
-                 char_width,
-                 0.125,
-                 graph_chars,
-                 vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█']);
-    test_option!(char_unicode,
-                 "--char=\u{2652}",
-                 histogram_char,
-                 "\u{2652}",
-                 char_width,
-                 1.0,
-                 unicode_mode,
-                 true);
+    test_option!(char_dt, "--char=dt", histogram_char, "•", unicode_mode, true);
+    test_option!(
+        char_pb,
+        "--char=pb",
+        histogram_char,
+        "pb",
+        char_width,
+        0.125,
+        graph_chars,
+        vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█']
+    );
+    test_option!(
+        char_unicode,
+        "--char=\u{2652}",
+        histogram_char,
+        "\u{2652}",
+        char_width,
+        1.0,
+        unicode_mode,
+        true
+    );
 
-    test_option!(short_palette,
-                 "-p=0,37,34,33,32",
-                 colour_palette,
-                 "0,37,34,33,32",
-                 colourised_output,
-                 true);
-    test_option!(long_palette,
-                 "--palette=0,37,34,33,32",
-                 colour_palette,
-                 "0,37,34,33,32",
-                 colourised_output,
-                 true);
+    test_option!(
+        short_palette,
+        "-p=0,37,34,33,32",
+        colour_palette,
+        "0,37,34,33,32",
+        colourised_output,
+        true
+    );
+    test_option!(
+        long_palette,
+        "--palette=0,37,34,33,32",
+        colour_palette,
+        "0,37,34,33,32",
+        colourised_output,
+        true
+    );
     test_option_fail!(invalid_short_palette, "-p=x");
     test_option_fail!(invalid_long_palette, "--palette=x");
 
-    test_option!(short_size_small,
-                 "-s=small",
-                 size,
-                 "small",
-                 width,
-                 60,
-                 height,
-                 10);
-    test_option!(long_size_small,
-                 "--size=small",
-                 size,
-                 "small",
-                 width,
-                 60,
-                 height,
-                 10);
+    test_option!(short_size_small, "-s=small", size, "small", width, 60, height, 10);
+    test_option!(long_size_small, "--size=small", size, "small", width, 60, height, 10);
     test_option!(short_size_sm, "-s=sm", size, "sm", width, 60, height, 10);
     test_option!(long_size_sm, "--size=sm", size, "sm", width, 60, height, 10);
     test_option!(short_size_s, "-s=s", size, "s", width, 60, height, 10);
     test_option!(long_size_s, "--size=s", size, "s", width, 60, height, 10);
 
-    test_option!(short_size_medium,
-                 "-s=medium",
-                 size,
-                 "medium",
-                 width,
-                 100,
-                 height,
-                 20);
-    test_option!(long_size_medium,
-                 "--size=medium",
-                 size,
-                 "medium",
-                 width,
-                 100,
-                 height,
-                 20);
-    test_option!(short_size_med,
-                 "-s=med",
-                 size,
-                 "med",
-                 width,
-                 100,
-                 height,
-                 20);
-    test_option!(long_size_med,
-                 "--size=med",
-                 size,
-                 "med",
-                 width,
-                 100,
-                 height,
-                 20);
+    test_option!(short_size_medium, "-s=medium", size, "medium", width, 100, height, 20);
+    test_option!(long_size_medium, "--size=medium", size, "medium", width, 100, height, 20);
+    test_option!(short_size_med, "-s=med", size, "med", width, 100, height, 20);
+    test_option!(long_size_med, "--size=med", size, "med", width, 100, height, 20);
     test_option!(short_size_m, "-s=m", size, "m", width, 100, height, 20);
     test_option!(long_size_m, "--size=m", size, "m", width, 100, height, 20);
 
