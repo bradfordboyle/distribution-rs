@@ -118,6 +118,7 @@ impl Tokenizer for RegexTokenizer {
         for (key, &value) in &counts {
             vec.push(Pair::new(value, key))
         }
+        debug!("[vec={:?}]", vec);
         vec
     }
 }

@@ -1,3 +1,8 @@
+extern crate dirs;
+#[macro_use]
+extern crate log;
+extern crate env_logger;
+
 extern crate regex;
 
 mod histogram;
@@ -14,6 +19,7 @@ use tokenizer::Tokenizer;
 use tokenizer::{LineTokenizer, PreTalliedTokenizer, RegexTokenizer};
 
 fn main() {
+    env_logger::init();
     let s = Settings::new(env::args());
     let stdin = io::stdin();
     let stdin_lock = stdin.lock();

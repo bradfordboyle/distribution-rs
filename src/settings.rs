@@ -1,3 +1,5 @@
+use dirs;
+
 use std::env;
 use std::ffi::OsStr;
 use std::fs::File;
@@ -136,7 +138,7 @@ impl Settings {
             let (_, rcfile) = opts[1].split_at(idx + 1);
             String::from(rcfile)
         } else {
-            let mut home = match env::home_dir() {
+            let mut home = match dirs::home_dir() {
                 Some(h) => h,
                 None => panic!("No home directory for user!"),
             };
@@ -208,6 +210,9 @@ impl Settings {
         } else if s.size == "medium" || s.size == "med" || s.size == "m" {
             s.width = 100;
             s.height = 20;
+        } else if s.size == "large" || s.size == "lg" || s.size == "l" {
+            s.width = 140;
+            s.height = 35;
         }
 
         // override variables if they were explicitly given

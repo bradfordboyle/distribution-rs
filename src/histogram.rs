@@ -29,7 +29,12 @@ impl HistogramWriter {
         write!(w, "|{:>width$}", "Ct", width = col_widths.token)?;
         write!(w, " {:>width$}", "(Pct)", width = col_widths.pct)?;
         write!(w, " Histogram\n")?;
-        write!(w, "{}|{}\n", "-".repeat(col_widths.key), "-".repeat(self.width - 4))?;
+        write!(
+            w,
+            "{}|{}\n",
+            "-".repeat(col_widths.key),
+            "-".repeat(self.width.checked_sub(col_widths.key + 2).unwrap_or(0))
+        )?;
 
         Ok(())
     }
@@ -50,7 +55,12 @@ impl HistogramWriter {
         let max_key_width = data.iter().fold(0, |max, p| cmp::max(max, p.key().len()));
         let max_token_width = format!("{}", max_value).len();
 
-        let bar_width = self.width - (max_key_width + 1) - (max_token_width + 1) - (max_pct_width + 1) - 1;
+        debug!(
+            "[width={}; key={}; token={}; pct={}]",
+            self.width, max_key_width, max_token_width, max_pct_width
+        );
+        let content_width = max_key_width + 1 + max_token_width + 1 + max_pct_width + 1 + 1;
+        let bar_width = self.width.checked_sub(content_width).unwrap_or(0);
 
         let mut stderr = io::stderr();
         let c = ColumnWidths {
@@ -164,7 +174,7 @@ mod test {
 
         let header = String::from_utf8_lossy(buff.get_ref());
 
-        assert_eq!(header, "Key| Ct (Pct) Histogram\n---|------\n");
+        assert_eq!(header, "Key| Ct (Pct) Histogram\n---|-----\n");
     }
 
     #[test]

@@ -4,4 +4,7 @@ version = "0.1.0"
 authors = ["Bradford D. Boyle <bradford.d.boyle@gmail.com>"]
 
 [dependencies]
+dirs = "1"
+env_logger = "0.5.3"
+log = "0.4.1"
 regex = "1"
