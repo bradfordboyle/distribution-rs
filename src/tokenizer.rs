@@ -106,7 +106,7 @@ impl Tokenizer for RegexTokenizer {
 
         for l in reader.lines() {
             let line = l.unwrap();
-            for token in self.splitter.split(line.trim_right()) {
+            for token in self.splitter.split(line.trim_end()) {
                 if self.matcher.is_match(token) {
                     let value = counts.entry(String::from(token)).or_insert(0);
                     *value += 1
