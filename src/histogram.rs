@@ -33,7 +33,7 @@ impl HistogramWriter {
             w,
             "{}|{}\n",
             "-".repeat(col_widths.key),
-            "-".repeat(self.width.checked_sub(col_widths.key + 2).unwrap_or(0))
+            "-".repeat(self.width.checked_sub(col_widths.key + 1).unwrap_or(0))
         )?;
 
         Ok(())
@@ -174,7 +174,7 @@ mod test {
 
         let header = String::from_utf8_lossy(buff.get_ref());
 
-        assert_eq!(header, "Key| Ct (Pct) Histogram\n---|-----\n");
+        assert_eq!(header, "Key| Ct (Pct) Histogram\n---|------\n");
     }
 
     #[test]
