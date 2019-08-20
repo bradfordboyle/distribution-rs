@@ -133,7 +133,7 @@ impl Settings {
         let mut opts: Vec<String> = args.collect();
         // FIXME rcfile may not be first passed argument
         let rcfile = if opts.len() > 1 && opts[1].starts_with("--rcfile") {
-            let idx = opts[1].find("=").unwrap();
+            let idx = opts[1].find('=').unwrap();
             let (_, rcfile) = opts[1].split_at(idx + 1);
             String::from(rcfile)
         } else {
@@ -149,7 +149,7 @@ impl Settings {
             let file = BufReader::new(&f);
             for line in file.lines() {
                 let l = line.unwrap();
-                let rcopt = match l.find("#") {
+                let rcopt = match l.find('#') {
                     Some(idx) => {
                         let (first, _) = l.split_at(idx);
                         String::from(first)
@@ -175,7 +175,7 @@ impl Settings {
                 // TODO: replace strings w/ ENUMs
                 s.graph_values = PreTallied::ValueKey;
             } else {
-                let v: Vec<&str> = arg.splitn(2, "=").collect();
+                let v: Vec<&str> = arg.splitn(2, '=').collect();
                 if v[0] == "-w" || v[0] == "--width" {
                     let w = v[1].parse::<usize>().unwrap();
                     s.width_arg = w;
@@ -225,7 +225,7 @@ impl Settings {
 
         // colour palette
         if s.colourised_output {
-            let cl: Vec<&str> = s.colour_palette.splitn(5, ",").collect();
+            let cl: Vec<&str> = s.colour_palette.splitn(5, ',').collect();
             s.regular_colour = format!("\u{001b}[{}m", cl[0]);
             s.key_colour = format!("\u{001b}[{}m", cl[1]);
             s.ct_colour = format!("\u{001b}[{}m", cl[2]);
