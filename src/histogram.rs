@@ -105,13 +105,13 @@ impl HistogramWriter {
         let histogram_char = self.s.histogram_char();
         let char_width = self.s.char_width();
         if char_width < 1.0 {
-            zero_char = self.s.graph_chars().last().expect("graph_chars is empty").clone();
+            zero_char = *self.s.graph_chars().last().expect("graph_chars is empty");
             one_char = '\0'
         } else if histogram_char.len() > 1 && self.s.unicode_mode() == false {
-            zero_char = histogram_char.chars().nth(0).unwrap().clone();
-            one_char = histogram_char.chars().nth(1).unwrap().clone();
+            zero_char = histogram_char.chars().nth(0).unwrap();
+            one_char = histogram_char.chars().nth(1).unwrap();
         } else {
-            zero_char = histogram_char.chars().nth(0).expect("histogram_char is empty").clone();
+            zero_char = histogram_char.chars().nth(0).expect("histogram_char is empty");
             one_char = zero_char;
         }
 
@@ -123,7 +123,7 @@ impl HistogramWriter {
         let mut bar = zero_char.to_string().repeat(int_width);
 
         if char_width == 1.0 {
-            bar.push(one_char.clone());
+            bar.push(one_char);
         } else if char_width < 1.0 && rem > char_width {
             let which = (rem / char_width).floor() as usize;
             bar.push(graph_char[which])
