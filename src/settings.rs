@@ -4,7 +4,6 @@ use std::env;
 use std::ffi::OsStr;
 use std::fs::File;
 use std::io::{self, BufRead, BufReader};
-use std::path::PathBuf;
 use std::process;
 
 #[derive(Debug, PartialEq)]
@@ -317,20 +316,13 @@ impl Settings {
     }
 
     pub fn get_program_name() -> Result<String, String> {
-        let current_exe: PathBuf = match env::current_exe() {
-            Ok(path) => path,
-            Err(err) => return Err(err.to_string()),
-        };
-
-        let file_name: &OsStr = match current_exe.file_name() {
-            Some(name) => name,
-            None => return Err("oh no!".to_string()),
-        };
-
-        match file_name.to_str() {
-            Some(name) => Ok(String::from(name)),
-            None => return Err("oh no!".to_string()),
-        }
+        env::current_exe().map_err(|err| err.to_string()).and_then(|path_buf| {
+            path_buf
+                .file_name()
+                .and_then(OsStr::to_str)
+                .map(String::from)
+                .ok_or_else(|| "oh no".to_string())
+        })
     }
 }
 
