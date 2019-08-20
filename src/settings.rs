@@ -157,7 +157,7 @@ impl Settings {
                     None => l,
                 };
                 if rcopt != "" {
-                    opts.insert(0, String::from(rcopt))
+                    opts.insert(0, rcopt)
                 }
             }
         }
