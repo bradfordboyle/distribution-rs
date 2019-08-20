@@ -30,9 +30,9 @@ impl Tokenizer for PreTalliedTokenizer {
     fn tokenize<T: io::BufRead>(&self, reader: T) -> Vec<Pair> {
         let mut vec = Vec::new();
         for line in reader.lines() {
-            let foo = line.unwrap();
+            let line = line.unwrap();
             // TODO stop unwrapping
-            let caps = self.re.captures(foo.as_str()).unwrap();
+            let caps = self.re.captures(line.as_str()).unwrap();
             let value = caps.name("value").unwrap().as_str().parse::<u64>().unwrap();
             let key = caps.name("key").unwrap().as_str();
             vec.push(Pair::new(value, key));
