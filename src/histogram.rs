@@ -122,7 +122,7 @@ impl HistogramWriter {
 
         let mut bar = zero_char.to_string().repeat(int_width);
 
-        if char_width == 1.0 {
+        if (char_width - 1.0).abs() < std::f64::EPSILON {
             bar.push(one_char);
         } else if char_width < 1.0 && rem > char_width {
             let which = (rem / char_width).floor() as usize;
