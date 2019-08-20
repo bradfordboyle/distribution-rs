@@ -254,7 +254,7 @@ impl Settings {
         s
     }
 
-    #[cfg_attr(rustfmt, rustfmt_skip)]
+    #[rustfmt::skip]
     fn do_usage<T: io::Write>(&self, writer: &mut T) -> io::Result<()> {
         writeln!(writer)?;
         writeln!(writer, "usage: <commandWithOutput> | {}", self.program_name)?;
