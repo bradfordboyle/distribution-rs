@@ -28,10 +28,10 @@ impl HistogramWriter {
         write!(w, "{:>width$}", "Key", width = col_widths.key)?;
         write!(w, "|{:>width$}", "Ct", width = col_widths.token)?;
         write!(w, " {:>width$}", "(Pct)", width = col_widths.pct)?;
-        write!(w, " Histogram\n")?;
-        write!(
+        writeln!(w, " Histogram")?;
+        writeln!(
             w,
-            "{}|{}\n",
+            "{}|{}",
             "-".repeat(col_widths.key),
             "-".repeat(self.width.checked_sub(col_widths.key + 1).unwrap_or(0))
         )?;
@@ -91,9 +91,9 @@ impl HistogramWriter {
             write!(writer, " {}", self.histogram_bar(max_value, bar_width, p.value()))?;
 
             if i == output_limit - 1 {
-                write!(writer, "{}\n", self.s.regular_colour())?;
+                writeln!(writer, "{}", self.s.regular_colour())?;
             } else {
-                write!(writer, "{}\n", self.s.key_colour())?;
+                writeln!(writer, "{}", self.s.key_colour())?;
             }
         }
         Ok(())
