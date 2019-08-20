@@ -10,7 +10,7 @@ pub struct Pair {
 impl Pair {
     pub fn new(value: u64, key: &str) -> Pair {
         Pair {
-            value: value,
+            value,
             key: key.to_string(),
         }
     }

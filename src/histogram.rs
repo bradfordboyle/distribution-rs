@@ -5,7 +5,7 @@ use pairlist::Pair;
 use settings::Settings;
 
 pub struct HistogramWriter {
-    s: Settings,
+    settings: Settings,
     height: usize,
     width: usize,
 }
@@ -18,10 +18,14 @@ struct ColumnWidths {
 }
 
 impl HistogramWriter {
-    pub fn new(s: Settings) -> HistogramWriter {
-        let w = s.width();
-        let h = s.height();
-        HistogramWriter { s: s, width: w, height: h }
+    pub fn new(settings: Settings) -> HistogramWriter {
+        let w = settings.width();
+        let h = settings.height();
+        HistogramWriter {
+            settings,
+            width: w,
+            height: h,
+        }
     }
 
     fn write_header<W: io::Write>(&self, w: &mut W, col_widths: ColumnWidths) -> io::Result<()> {
@@ -75,25 +79,25 @@ impl HistogramWriter {
             let pct = p.value() as f64 / total_value as f64 * 100.0f64;
 
             write!(writer, "{:>width$}", p.key(), width = max_key_width)?;
-            write!(writer, "{}", self.s.regular_colour())?;
+            write!(writer, "{}", self.settings.regular_colour())?;
             write!(writer, "|")?;
-            write!(writer, "{}", self.s.ct_colour())?;
+            write!(writer, "{}", self.settings.ct_colour())?;
             write!(writer, "{:>width$}", p.value(), width = max_token_width)?;
             write!(writer, " ")?;
 
             // A good way to ensure padding is applied is to format your input,
             // then use this resulting string to pad your output.
             // https://doc.rust-lang.org/std/fmt/
-            write!(writer, "{}", self.s.pct_colour())?;
+            write!(writer, "{}", self.settings.pct_colour())?;
             write!(writer, "{:>width$}", format!("({:2.2}%)", pct), width = max_pct_width)?;
 
-            write!(writer, "{}", self.s.graph_colour())?;
+            write!(writer, "{}", self.settings.graph_colour())?;
             write!(writer, " {}", self.histogram_bar(max_value, bar_width, p.value()))?;
 
             if i == output_limit - 1 {
-                writeln!(writer, "{}", self.s.regular_colour())?;
+                writeln!(writer, "{}", self.settings.regular_colour())?;
             } else {
-                writeln!(writer, "{}", self.s.key_colour())?;
+                writeln!(writer, "{}", self.settings.key_colour())?;
             }
         }
         Ok(())
@@ -102,12 +106,12 @@ impl HistogramWriter {
     fn histogram_bar(&self, max_value: u64, bar_width: usize, bar_value: u64) -> String {
         let zero_char: char;
         let one_char: char;
-        let histogram_char = self.s.histogram_char();
-        let char_width = self.s.char_width();
+        let histogram_char = self.settings.histogram_char();
+        let char_width = self.settings.char_width();
         if char_width < 1.0 {
-            zero_char = *self.s.graph_chars().last().expect("graph_chars is empty");
+            zero_char = *self.settings.graph_chars().last().expect("graph_chars is empty");
             one_char = '\0'
-        } else if histogram_char.len() > 1 && !self.s.unicode_mode() {
+        } else if histogram_char.len() > 1 && !self.settings.unicode_mode() {
             zero_char = histogram_char.chars().nth(0).unwrap();
             one_char = histogram_char.chars().nth(1).unwrap();
         } else {
