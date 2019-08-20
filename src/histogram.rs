@@ -107,7 +107,7 @@ impl HistogramWriter {
         if char_width < 1.0 {
             zero_char = *self.s.graph_chars().last().expect("graph_chars is empty");
             one_char = '\0'
-        } else if histogram_char.len() > 1 && self.s.unicode_mode() == false {
+        } else if histogram_char.len() > 1 && !self.s.unicode_mode() {
             zero_char = histogram_char.chars().nth(0).unwrap();
             one_char = histogram_char.chars().nth(1).unwrap();
         } else {
