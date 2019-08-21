@@ -137,12 +137,12 @@ impl Settings {
             let (_, rcfile) = opts[1].split_at(idx + 1);
             String::from(rcfile)
         } else {
-            let mut home = match dirs::home_dir() {
-                Some(h) => h,
-                None => panic!("No home directory for user!"),
-            };
-            home.push(".distributionrc");
-            String::from(home.to_str().unwrap())
+            dirs::home_dir()
+                .and_then(|mut home| {
+                    home.push(".distributionrc");
+                    home.to_str().map(String::from)
+                })
+                .expect("unable to find config file in home directory")
         };
 
         if let Ok(f) = File::open(rcfile) {
