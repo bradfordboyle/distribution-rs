@@ -149,15 +149,9 @@ impl Settings {
             let file = BufReader::new(&f);
             for line in file.lines() {
                 let l = line.unwrap();
-                let rcopt = match l.find('#') {
-                    Some(idx) => {
-                        let (first, _) = l.split_at(idx);
-                        String::from(first)
-                    }
-                    None => l,
-                };
+                let rcopt = Settings::strip_comments(&l);
                 if rcopt != "" {
-                    opts.insert(0, rcopt)
+                    opts.insert(0, rcopt.to_string())
                 }
             }
         }
@@ -324,6 +318,10 @@ impl Settings {
                 .ok_or_else(|| "oh no".to_string())
         })
     }
+
+    fn strip_comments(line: &str) -> &str {
+        line.split('#').nth(0).map(|token| token.trim()).expect("error parsing line")
+    }
 }
 
 #[cfg(test)]
@@ -338,6 +336,14 @@ mod test {
         // check non-zero defaults
         assert_eq!(s.width(), 80);
         assert_eq!(s.height(), 15);
+    }
+
+    #[test]
+    fn test_strip_comments() {
+        assert_eq!("opt", Settings::strip_comments("opt"));
+        assert_eq!("opt", Settings::strip_comments("opt#comment"));
+        assert_eq!("opt", Settings::strip_comments("opt #comment"));
+        assert_eq!("", Settings::strip_comments("# a comment line"));
     }
 
     macro_rules! test_option {
