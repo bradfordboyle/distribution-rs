@@ -112,10 +112,10 @@ impl HistogramWriter {
             zero_char = *self.settings.graph_chars().last().expect("graph_chars is empty");
             one_char = '\0'
         } else if histogram_char.len() > 1 && !self.settings.unicode_mode() {
-            zero_char = histogram_char.chars().nth(0).unwrap();
+            zero_char = histogram_char.chars().next().unwrap();
             one_char = histogram_char.chars().nth(1).unwrap();
         } else {
-            zero_char = histogram_char.chars().nth(0).expect("histogram_char is empty");
+            zero_char = histogram_char.chars().next().expect("histogram_char is empty");
             one_char = zero_char;
         }
 

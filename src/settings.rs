@@ -320,7 +320,7 @@ impl Settings {
     }
 
     fn strip_comments(line: &str) -> &str {
-        line.split('#').nth(0).map(|token| token.trim()).expect("error parsing line")
+        line.splitn(2, '#').next().map(|token| token.trim()).expect("error parsing line")
     }
 }
 
