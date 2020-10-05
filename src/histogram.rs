@@ -37,7 +37,7 @@ impl HistogramWriter {
             w,
             "{}|{}",
             "-".repeat(col_widths.key),
-            "-".repeat(self.width.checked_sub(col_widths.key + 1).unwrap_or(0))
+            "-".repeat(self.width.saturating_sub(col_widths.key + 1))
         )?;
 
         Ok(())
@@ -64,7 +64,7 @@ impl HistogramWriter {
             self.width, max_key_width, max_token_width, max_pct_width
         );
         let content_width = max_key_width + 1 + max_token_width + 1 + max_pct_width + 1 + 1;
-        let bar_width = self.width.checked_sub(content_width).unwrap_or(0);
+        let bar_width = self.width.saturating_sub(content_width);
 
         let mut stderr = io::stderr();
         let c = ColumnWidths {
