@@ -253,7 +253,7 @@ impl Settings {
         writeln!(writer, "usage: <commandWithOutput> | {}", self.program_name)?;
         writeln!(writer, "         [--size={{sm|med|lg|full}} | --width=<width> --height=<height>]")?;
         writeln!(writer, "         [--color] [--palette=r,k,c,p,g]")?;
-        writeln!(writer, "         [--Tokenize=<tokenChar>]")?;
+        writeln!(writer, "         [--tokenize=<tokenChar>]")?;
         writeln!(writer, "         [--graph[=[kv|vk]] [--numonly[=derivative,diff|abs,absolute,actual]]")?;
         writeln!(writer, "         [--char=<barChars>|<substitutionString>]")?;
         writeln!(writer, "         [--help] [--verbose]")?;
@@ -289,7 +289,7 @@ impl Settings {
         writeln!(writer, "        medium   80x20")?;
         writeln!(writer, "        large    120x30")?;
         writeln!(writer, "        full     terminal width x terminal height (approximately)")?;
-        writeln!(writer, "  --Tokenize=RE  split input on regexp RE and make histogram of all resulting tokens")?;
+        writeln!(writer, "  --tokenize=RE  split input on regexp RE and make histogram of all resulting tokens")?;
         writeln!(writer, "        word     [^\\w] - split on non-word characters like colons, brackets, commas, etc")?;
         writeln!(writer, "        white    \\s    - split on whitespace")?;
         writeln!(writer, "  --width=N      width of the histogram report, N characters, overrides --size")?;
@@ -300,11 +300,11 @@ impl Settings {
         writeln!(writer, "Samples:")?;
         writeln!(writer, "  du -sb /etc/* | {} --palette=0,37,34,33,32 --graph", self.program_name)?;
         writeln!(writer, "  du -sk /etc/* | awk '{{print $2\" \"$1}}' | {} --graph=kv", self.program_name)?;
-        writeln!(writer, "  zcat /var/log/syslog*gz | {} --char=o --Tokenize=white", self.program_name)?;
-        writeln!(writer, "  zcat /var/log/syslog*gz | awk '{{print \\$5}}'  | {} -t=word -m-word -h=15 -c=/", self.program_name)?;
-        writeln!(writer, "  zcat /var/log/syslog*gz | cut -c 1-9        | {} -width=60 -height=10 -char=em", self.program_name)?;
-        writeln!(writer, "  find /etc -type f       | cut -c 6-         | {} -Tokenize=/ -w=90 -h=35 -c=dt", self.program_name)?;
-        writeln!(writer, "  cat /usr/share/dict/words | awk '{{print length(\\$1)}}' | {} -c=* -w=50 -h=10 | sort -n", self.program_name)?;
+        writeln!(writer, "  zcat /var/log/syslog*gz | {} --char=o --tokenize=white", self.program_name)?;
+        writeln!(writer, "  zcat /var/log/syslog*gz | awk '{{print $5}}'  | {} --t=word --m-word --h=15 --c=/", self.program_name)?;
+        writeln!(writer, "  zcat /var/log/syslog*gz | cut -c 1-9        | {} --width=60 --height=10 --char=em", self.program_name)?;
+        writeln!(writer, "  find /etc -type f       | cut -c 6-         | {} --tokenize=/ --w=90 --h=35 --c=dt", self.program_name)?;
+        writeln!(writer, "  cat /usr/share/dict/words | awk '{{print length($1)}}' | {} --c=* --w=50 --h=10 | sort -n", self.program_name)?;
         writeln!(writer)?;
         Ok(())
     }
