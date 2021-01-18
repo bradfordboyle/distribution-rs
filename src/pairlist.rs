@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 
 // deriving PartialOrd depends on order of fields in struct
-#[derive(Debug, Eq, PartialOrd, PartialEq)]
+#[derive(Debug, Eq, PartialEq)]
 pub struct Pair {
     value: u64,
     key: String,
@@ -21,6 +21,12 @@ impl Pair {
 
     pub fn key(&self) -> &str {
         &self.key
+    }
+}
+
+impl PartialOrd for Pair {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
     }
 }
 

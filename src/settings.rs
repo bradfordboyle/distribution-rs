@@ -119,16 +119,16 @@ impl Settings {
     where
         I: Iterator<Item = String>,
     {
-        let mut s: Settings = Default::default();
-
-        // non-zero defaults
-        s.program_name = Settings::get_program_name().unwrap();
-        s.char_width = 1.0;
-        s.match_regexp = String::from(r".");
-        s.width = 80;
-        s.height = 15;
-        s.colour_palette = String::from("0,0,32,35,34");
-        s.histogram_char = String::from("-");
+        let mut s: Settings = Settings {
+            program_name: Settings::get_program_name().unwrap(),
+            char_width: 1.0,
+            match_regexp: String::from(r"."),
+            width: 80,
+            height: 15,
+            colour_palette: String::from("0,0,32,35,34"),
+            histogram_char: String::from("-"),
+            ..Default::default()
+        };
 
         let mut opts: Vec<String> = args.collect();
         // FIXME rcfile may not be first passed argument
@@ -150,7 +150,7 @@ impl Settings {
             for line in file.lines() {
                 let l = line.unwrap();
                 let rcopt = Settings::strip_comments(&l);
-                if rcopt != "" {
+                if !rcopt.is_empty() {
                     opts.insert(0, rcopt.to_string())
                 }
             }
