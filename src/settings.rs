@@ -1,5 +1,3 @@
-use dirs;
-
 use std::env;
 use std::ffi::OsStr;
 use std::fs::File;
@@ -320,7 +318,7 @@ impl Settings {
     }
 
     fn strip_comments(line: &str) -> &str {
-        line.splitn(2, '#').next().map(|token| token.trim()).expect("error parsing line")
+        line.split('#').map(|token| token.trim()).next().expect("error parsing line")
     }
 }
 

@@ -1,8 +1,10 @@
 use std::cmp;
 use std::io;
 
-use pairlist::Pair;
-use settings::Settings;
+use super::pairlist::Pair;
+use super::settings::Settings;
+
+use log::debug;
 
 pub struct HistogramWriter {
     settings: Settings,
@@ -124,7 +126,7 @@ impl HistogramWriter {
         let rem = width - int_width as f64;
         let graph_char = vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'];
 
-        #[allow(clippy::blacklisted_name)]
+        #[allow(clippy::disallowed_names)]
         let mut bar = zero_char.to_string().repeat(int_width);
 
         if (char_width - 1.0).abs() < std::f64::EPSILON {
@@ -140,8 +142,8 @@ impl HistogramWriter {
 #[cfg(test)]
 mod test {
     use super::*;
-    use pairlist::Pair;
-    use settings::Settings;
+    use crate::pairlist::Pair;
+    use crate::settings::Settings;
 
     use std::io::Cursor;
 

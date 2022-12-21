@@ -1,6 +1,7 @@
 [package]
 name = "distribution"
 version = "0.1.0"
+edition = "2021"
 authors = ["Bradford D. Boyle <bradford.d.boyle@gmail.com>"]
 
 [dependencies]

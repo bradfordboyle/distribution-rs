@@ -40,7 +40,7 @@ impl Ord for Pair {
 
 #[cfg(test)]
 mod test {
-    use pairlist::Pair;
+    use crate::pairlist::Pair;
     use std::cmp::Ordering;
 
     #[test]

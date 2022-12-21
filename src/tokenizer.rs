@@ -1,7 +1,9 @@
 use std::collections::HashMap;
 use std::io;
 
-use pairlist::Pair;
+use super::pairlist::Pair;
+
+use log::debug;
 use regex::Regex;
 
 pub trait Tokenizer {
@@ -125,9 +127,9 @@ impl Tokenizer for RegexTokenizer {
 
 #[cfg(test)]
 mod test {
-    use pairlist::Pair;
+    use crate::pairlist::Pair;
+    use crate::tokenizer::{LineTokenizer, PreTalliedTokenizer, RegexTokenizer, Tokenizer};
     use std::io;
-    use tokenizer::{LineTokenizer, PreTalliedTokenizer, RegexTokenizer, Tokenizer};
 
     #[test]
     fn key_value_tokenize_empty_reader() {
