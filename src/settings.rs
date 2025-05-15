@@ -4,17 +4,12 @@ use std::fs::File;
 use std::io::{self, BufRead, BufReader};
 use std::process;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Default, PartialEq)]
 pub enum PreTallied {
+    #[default]
     NA,
     KeyValue,
     ValueKey,
-}
-
-impl Default for PreTallied {
-    fn default() -> PreTallied {
-        PreTallied::NA
-    }
 }
 
 #[derive(Debug, Default)]
