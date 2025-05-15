@@ -49,7 +49,7 @@ impl HistogramWriter {
         format!("({:2.2}%)", 100.0 * max as f64 / total as f64).len()
     }
 
-    pub fn write_histogram<T: io::Write>(&self, writer: &mut T, pairlist: &mut Vec<Pair>) -> io::Result<()> {
+    pub fn write_histogram<T: io::Write>(&self, writer: &mut T, pairlist: &mut [Pair]) -> io::Result<()> {
         let output_limit = cmp::min(self.height, pairlist.len());
         pairlist.sort_by(|a, b| b.cmp(a));
         let data: Vec<_> = pairlist.iter().take(output_limit).collect();
@@ -124,12 +124,12 @@ impl HistogramWriter {
         let width = (bar_value as f64) / (max_value as f64) * (bar_width as f64);
         let int_width = width.floor() as usize;
         let rem = width - int_width as f64;
-        let graph_char = vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'];
+        let graph_char = ['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'];
 
         #[allow(clippy::disallowed_names)]
         let mut bar = zero_char.to_string().repeat(int_width);
 
-        if (char_width - 1.0).abs() < std::f64::EPSILON {
+        if (char_width - 1.0).abs() < f64::EPSILON {
             bar.push(one_char);
         } else if char_width < 1.0 && rem > char_width {
             let which = (rem / char_width).floor() as usize;
